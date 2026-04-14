@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Settings</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body id="settings-body">
+    <header id="settings-header">
+        <nav id="settings-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="settings-container">
+        <div class="settings-section">
+            <h1>Settings ⚙️</h1>
+            <p>Customize your Smart Wallet experience.</p>
+        </div>
+
+        <div class="settings-form">
+            <form action="#" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="monthly_limit">Monthly Spending Limit</label>
+                    <input type="number" id="monthly_limit" name="monthly_limit" value="{{ user.monthly_limit }}" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="saving_goals">Savings Goal</label>
+                    <input type="number" id="saving_goals" name="saving_goals" value="{{ user.saving_goals }}" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="notifications">Enable Notifications</label>
+                    <input type="checkbox" id="notifications" name="notifications" checked>
+                </div>
+                <div class="form-group">
+                    <label for="currency">Preferred Currency</label>
+                    <select id="currency" name="currency">
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Save Settings</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

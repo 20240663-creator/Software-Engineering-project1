@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Wallet - Transactions</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body id="transaction-page">
+    <header id="transaction-header">
+        <div class="logo">💰 Smart Wallet</div>
+        <div class="transaction-nav">
+            <a href="{% url 'home' %}" class="nav-link">Home</a>
+        </div>
+    </header>
+
+    <main class="transaction-container">
+        <section class="transaction-card">
+            <h1>Recent Transactions</h1>
+            <p class="subheading">Track and manage every transaction in one secure place.</p>
+
+            <table class="transaction-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                        <tr>
+                            <td>{{ tx.date }}</td>
+                            <td>{{ tx.description }}</td>
+                            <td>{% if user != tx.sender %} Receive {% else %} {{ tx.transaction_type }} {% endif %}</td>
+                            <td class="amount  {% if tx.amount < 0 %}amount-negative{% else %}amount-positive{% endif %}">{{ tx.amount|floatformat:2 }}</td>
+                            <td>${{ tx.balance|floatformat:2 }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-state">No transactions found yet. Start by adding one.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </section>
+    </main>
+
+    <footer id="transaction-footer">
+        <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+    </footer>
+</body>
+</html>

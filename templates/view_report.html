@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - View Report</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body id="report-body">
+    <header id="report-header">
+        <nav id="report-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="report-container">
+        <div class="report-section">
+            <h1>Financial Report 📊</h1>
+            <p>View your transaction history and financial insights.</p>
+        </div>
+
+        <div class="report-summary">
+            <div class="summary-card">
+                <h3>Total Income</h3>
+                <p class="amount positive">${{ total_balance|default:0 }}</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Expenses</h3>
+                <p class="amount negative">${{ total_expenses|default:0 }}</p>
+            </div>
+            <div class="summary-card">
+                <h3>Net Balance</h3>
+                <p class="amount">${{ user.total_balance|default:0 }}</p>
+            </div>
+        </div>
+
+        <div class="report-table">
+            <h2>Recent Transactions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date }}</td>
+                        <td>{{ transaction.description }}</td>
+                        <td>{{ transaction.category }}</td>
+                        <td class="{% if transaction.type == 'expense' %}negative{% else %}positive{% endif %}">${{ transaction.amount }}</td>
+                        <td>{{ transaction.get_type_display }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No transactions found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

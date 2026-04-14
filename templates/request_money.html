@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Money - Smart Wallet</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/request_money.css' %}">
+</head>
+<body id="request-money-body">
+    <header id="request-money-header">
+        <nav id="request-money-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                <li><a href="{% url 'send_money' %}">Send Money</a></li>
+                <li><a href="{% url 'request_money' %}">Request Money</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="request-money-container">
+        <div class="welcome-section">
+            <h1>Request Money 📥</h1>
+            <p>Create payment requests and track who owes you money</p>
+        </div>
+
+        <div class="request-money-wrapper">
+            <div class="request-form-card">
+                <form id="requestMoneyForm" class="request-form">
+                    <div class="form-group">
+                        <label for="requesterName">Who should pay you?</label>
+                        <input type="text" id="requesterName" class="form-control" placeholder="Enter name of person who owes you" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requesterEmail">Their Email Address:</label>
+                        <input type="email" id="requesterEmail" class="form-control" placeholder="Enter their email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requestAmount">Amount to Request:</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="requestAmount" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reason">Reason for Request:</label>
+                        <select id="reason" class="form-control" required>
+                            <option value="">Select reason</option>
+                            <option value="split-bill">Split Bill</option>
+                            <option value="loan">Loan</option>
+                            <option value="expense-reimbursement">Expense Reimbursement</option>
+                            <option value="debt">Debt</option>
+                            <option value="rent">Rent</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dueDate">Due Date:</label>
+                        <input type="date" id="dueDate" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requestDescription">Description (Optional):</label>
+                        <textarea id="requestDescription" class="form-control" placeholder="Add details about what this payment is for..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requestPriority">Priority:</label>
+                        <select id="requestPriority" class="form-control" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="sendReminder" class="checkbox-control" checked>
+                        <label for="sendReminder">Send reminder email to requester</label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Create Request</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="request-info-card">
+                <h3>Requests Summary</h3>
+                <div class="stats-item">
+                    <span class="stats-label">Total Pending:</span>
+                    <span class="stats-value pending">$3,450.50</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Requests Created:</span>
+                    <span class="stats-value">12</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Request Paid:</span>
+                    <span class="stats-value">8</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Unpaid Requests:</span>
+                    <span class="stats-value unpaid">4</span>
+                </div>
+
+                <div class="info-section">
+                    <h4>How It Works</h4>
+                    <ol class="info-list">
+                        <li>Enter the person's details who owes you</li>
+                        <li>Specify the amount and reason</li>
+                        <li>Set a due date for payment</li>
+                        <li>We'll send them a payment request</li>
+                        <li>Track payment status in real-time</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div id="requestsList" class="requests-list-section">
+            <h3>Your Pending Requests</h3>
+            <div class="requests-table">
+                <div class="request-row request-header">
+                    <div class="request-name">From</div>
+                    <div class="request-amount">Amount</div>
+                    <div class="request-date">Due Date</div>
+                    <div class="request-status">Status</div>
+                    <div class="request-action">Action</div>
+                </div>
+
+                <div class="request-row">
+                    <div class="request-name">Alice Johnson</div>
+                    <div class="request-amount">$250.00</div>
+                    <div class="request-date">April 15, 2026</div>
+                    <div class="request-status"><span class="badge badge-pending">Pending</span></div>
+                    <div class="request-action">
+                        <button class="btn-small btn-reminder" onclick="sendReminder('Alice Johnson')">Remind</button>
+                    </div>
+                </div>
+
+                <div class="request-row">
+                    <div class="request-name">Bob Smith</div>
+                    <div class="request-amount">$500.00</div>
+                    <div class="request-date">April 10, 2026</div>
+                    <div class="request-status"><span class="badge badge-overdue">Overdue</span></div>
+                    <div class="request-action">
+                        <button class="btn-small btn-reminder" onclick="sendReminder('Bob Smith')">Remind</button>
+                    </div>
+                </div>
+
+                <div class="request-row">
+                    <div class="request-name">Carol White</div>
+                    <div class="request-amount">$150.50</div>
+                    <div class="request-date">April 20, 2026</div>
+                    <div class="request-status"><span class="badge badge-pending">Pending</span></div>
+                    <div class="request-action">
+                        <button class="btn-small btn-reminder" onclick="sendReminder('Carol White')">Remind</button>
+                    </div>
+                </div>
+
+                <div class="request-row">
+                    <div class="request-name">David Brown</div>
+                    <div class="request-amount">$2,550.00</div>
+                    <div class="request-date">April 25, 2026</div>
+                    <div class="request-status"><span class="badge badge-pending">Pending</span></div>
+                    <div class="request-action">
+                        <button class="btn-small btn-reminder" onclick="sendReminder('David Brown')">Remind</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>✓ Request Created!</h2>
+            <p>Your payment request has been sent successfully.</p>
+            <div id="requestDetails" class="request-details"></div>
+            <button class="btn btn-primary" onclick="closeModal('requestModal')">Done</button>
+        </div>
+    </div>
+
+    <div id="reminderModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>✓ Reminder Sent!</h2>
+            <p id="reminderMessage"></p>
+            <button class="btn btn-primary" onclick="closeModal('reminderModal')">OK</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/project.js' %}"></script>
+    <script>
+        document.getElementById('requestMoneyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleRequestMoney();
+        });
+    </script>
+</body>
+</html>

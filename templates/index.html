@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Home</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body id="user-home-body">
+    <header id="user-home-header">
+        <nav id="user-home-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="user-home-container">
+        <div class="welcome-section" id="user-home-welcome">
+            <h1>Welcome back, {{user.name}}! 👋</h1>
+            <p>Manage your finances with ease. Here's your financial overview.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-title">Total Balance</div>
+                <div class="card-value">{{ user.total_balance }}</div>
+                <div class="card-subtitle">+{{ spend_pre }}% from last month</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Monthly Spending</div>
+                <div class="card-value">{{ user.monthly_spending }}</div>
+                <div class="card-subtitle">{{ monthly_spend }}% of budget used</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Savings Goal</div>
+                <div class="card-value">{{ user.saving_goals  }}</div>
+                <div class="card-subtitle">18% completed</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Pending Transfers</div>
+                <div class="card-value">2</div>
+                <div class="card-subtitle">Total: $450.00</div>
+            </div>
+        </div>
+
+        <div class="quick-actions" id="user-home-quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="actions-grid">
+                <a href="{% url 'send_money' %}" class="action-btn">💸 Send Money</a>
+                <a href="{% url 'request_money' %}" class="action-btn">📥 Request Money</a>
+                <a href="{% url 'view_report' %}" class="action-btn">📊 View Report</a>
+                <a href="{% url 'deposit' %}" class="action-btn">🏦 Deposit</a>
+            </div>
+        </div>
+
+        <div class="transactions-section">
+    <h2>Recent Transactions</h2>
+    <ul class="transaction-list">
+        {% for t in transaction %}
+        <li class="transaction-item">
+            <div class="transaction-info">
+                <div class="transaction-type">{{ t.description }}</div>
+                <div class="transaction-date">{{ t.date }}</div>
+            </div>
+            <div class="transaction-amount {% if t.sender == user and t.transaction_type != 'Deposit'%}amount-negative{% else %}amount-positive{% endif %}">
+                {% if t.sender == user and t.transaction_type != 'Deposit' %}-{% else %}+{% endif %}${{ t.amount|floatformat:2 }}
+            </div>
+        </li>
+        {% empty %}
+        <li>No transactions yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+    <footer>
+        <p>&copy; 2026 Smart Wallet. All rights reserved. | <a href="#privacy" style="color: #667eea;">Privacy Policy</a></p>
+    </footer>
+    </div>
+</body>
+</html>

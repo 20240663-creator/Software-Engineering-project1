@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Money - Smart Wallet</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/deposit.css' %}">
+</head>
+<body id="deposit-body">
+    <header id="deposit-header">
+        <nav id="deposit-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                <li><a href="{% url 'send_money' %}">Send Money</a></li>
+                <li><a href="{% url 'request_money' %}">Request Money</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="deposit-container">
+        <div class="welcome-section">
+            <h1>Deposit Money 💳</h1>
+            <p>Add funds to your wallet securely and instantly</p>
+        </div>
+
+        <div class="deposit-wrapper">
+            <div class="deposit-form-card">
+                <form id="depositForm" class="deposit-form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="amount">Amount to Deposit:</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="amount" class="form-control" name="amount" placeholder="0.00" min="0" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method:</label>
+                        <select id="paymentMethod" name="payment_method" class="form-control" required>
+                            <option value="">Select payment method</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="credit_card">Credit Card</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountNumber">Account/Card Number:</label>
+                        <input type="text" id="accountNumber" name="account_number" class="form-control" placeholder="Enter account or card number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description (Optional):</label>
+                        <textarea id="description" name="description" class="form-control" placeholder="Add a note for this deposit..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="savePaymentMethod" name="save_payment_method" class="checkbox-control">
+                        <label for="savePaymentMethod">Save this payment method for future deposits</label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Deposit Money</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="deposit-info-card">
+                <h3>Deposit Information</h3>
+                <ul>
+                    <li>Instant deposits with no fees</li>
+                    <li>Secure encryption for all transactions</li>
+                    <li>24/7 customer support available</li>
+                    <li>Multiple payment options supported</li>
+                    <li>Funds available immediately after deposit</li>
+                    <li>Transaction history tracking</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Smart Wallet. All rights reserved.</p>
+    </footer>
+</body>
+</html>

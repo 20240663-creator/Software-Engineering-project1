@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Money - Smart Wallet</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/send_money.css' %}">
+</head>
+<body id="send-money-body">
+    <header id="send-money-header">
+        <nav id="send-money-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                <li><a href="{% url 'send_money' %}">Send Money</a></li>
+                <li><a href="{% url 'request_money' %}">Request Money</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="send-money-container">
+        <div class="welcome-section">
+            <h1>Send Money 💸</h1>
+            <p>Transfer funds securely to your contacts or bank accounts</p>
+        </div>
+
+        <div class="send-money-wrapper">
+            <div class="send-form-card">
+                <form id="sendMoneyForm" class="send-form" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="recipientName">Recipient Name:</label>
+                        <input type="text" id="recipientName" name="recipient" class="form-control" placeholder="Enter recipient name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipientEmail">Recipient Email/Account:</label>
+                        <input type="text" id="recipientEmail" name="recipient_email" class="form-control" placeholder="Enter email or account number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount to Send:</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="amount" class="form-control" name="amount" placeholder="0.00" min="0" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purpose">Purpose of Transfer:</label>
+                        <select id="purpose" name="purpose" class="form-control" required>
+                            <option value="">Select purpose</option>
+                            <option value="payment">Payment</option>
+                            <option value="reimbursement">Reimbursement</option>
+                            <option value="gift">Gift</option>
+                            <option value="loan">Loan</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description (Optional):</label>
+                        <textarea id="description" class="form-control" placeholder="Add a note for the recipient..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="saveRecipient" class="checkbox-control">
+                        <label for="saveRecipient">Save this recipient for future transfers</label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Send Money</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="send-info-card">
+                <h3>Quick Stats</h3>
+                <div class="stats-item">
+                    <span class="stats-label">Available Balance:</span>
+                    <span class="stats-value">{{user.total_balance}}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Today's Transfers:</span>
+                    <span class="stats-value">3</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Monthly Limit:</span>
+                    <span class="stats-value">$20,000.00</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Used This Month:</span>
+                    <span class="stats-value">$12,500.00</span>
+                </div>
+
+                <div class="info-section">
+                    <h4>Transfer Information</h4>
+                    <ul class="info-list">
+                        <li>Transfers are processed instantly</li>
+                        <li>No fees for same-bank transfers</li>
+                        <li>$1.50 fee for external transfers</li>
+                        <li>Maximum transfer limit: $50,000</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="recentTransfers" class="recent-transfers-section">
+            <h3>Recent Transfers</h3>
+            <div class="transfers-list">
+                {% for send in sends %}
+                <div class="transfer-item">
+                    <div class="transfer-info">
+                        <div class="transfer-recipient">{{ send.receiver }}</div>
+                        <div class="transfer-date">{{ send.date }}</div>
+                    </div>
+                    <div class="transfer-amount">- {{ send.amount }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>✓ Transfer Successful!</h2>
+            <p>Your money has been sent successfully.</p>
+            <div id="successDetails" class="success-details"></div>
+            <button class="btn btn-primary" onclick="closeModal('successModal')">Done</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/project.js' %}"></script>
+    
+</body>
+</html>

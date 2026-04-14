@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body id="profile-body">
+<header id="profile-header">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>💰 Smart Wallet</div>
+      <div><a href="{% url 'home' %}" style="color:white;text-decoration:underline;">Home</a></div>
+    </div>
+</header>
+<div class="container" id="profile-container">
+    <div class="card" id="profile-card">
+        <h1>User Profile</h1>
+        <p class="profile-label">Name</p>
+        <p class="profile-value">{{ user.name }}</p>
+
+        <p class="profile-label">Email</p>
+        <p class="profile-value">{{ user.email }}</p>
+
+        <p class="profile-label">Member since</p>
+        <p class="profile-value">{{ user.created_at|date:"F j, Y, g:i a" }}</p>
+
+        <p class="profile-label">Last updated</p>
+        <p class="profile-value">{{ user.updated_at|date:"F j, Y, g:i a" }}</p>
+
+        <a href="#" class="btn-edit">Edit Profile</a>
+    </div>
+</div>
+<footer>
+    <p>&copy; 2026 Smart Wallet</p>
+</footer>
+</body>
+</html>
