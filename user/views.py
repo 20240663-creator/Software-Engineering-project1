@@ -116,3 +116,10 @@ def view_deposit(request):
 
     return render(request, 'deposit.html',{'user':user})
 
+
+def view_logout(request):
+    # Clear the session
+    if 'user_id' in request.session:
+        del request.session['user_id']
+    return redirect('login')
+

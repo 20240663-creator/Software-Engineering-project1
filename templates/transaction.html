@@ -12,6 +12,7 @@
         <div class="logo">💰 Smart Wallet</div>
         <div class="transaction-nav">
             <a href="{% url 'home' %}" class="nav-link">Home</a>
+            <a href="{% url 'logout' %}" class="nav-link">Logout</a>
         </div>
     </header>
 
@@ -24,7 +25,7 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Description</th>
+                        <th>Status</th>
                         <th>Type</th>
                         <th>Amount</th>
                         <th>Balance</th>
@@ -34,10 +35,10 @@
                     {% for tx in transactions %}
                         <tr>
                             <td>{{ tx.date }}</td>
-                            <td>{{ tx.description }}</td>
+                            <td>{{ tx.status }}</td>
                             <td>{% if user != tx.sender %} Receive {% else %} {{ tx.transaction_type }} {% endif %}</td>
                             <td class="amount  {% if tx.amount < 0 %}amount-negative{% else %}amount-positive{% endif %}">{{ tx.amount|floatformat:2 }}</td>
-                            <td>${{ tx.balance|floatformat:2 }}</td>
+                            <td>${{ total_balance|floatformat:2 }}</td>
                         </tr>
                     {% empty %}
                         <tr>

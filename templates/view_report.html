@@ -16,6 +16,7 @@
                 <li><a href="{% url 'transactions' %}">Transactions</a></li>
                 <li><a href="{% url 'settings' %}">Settings</a></li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -48,7 +49,7 @@
                     <tr>
                         <th>Date</th>
                         <th>Description</th>
-                        <th>Category</th>
+                        <th>Status</th>
                         <th>Amount</th>
                         <th>Type</th>
                     </tr>
@@ -58,7 +59,7 @@
                     <tr>
                         <td>{{ t.date }}</td>
                         <td>{{ t.description }}</td>
-                        <td>{{ t.category }}</td>
+                        <td>{{ t.status }}</td>
                         <td class="{% if t.sender == user and t.transaction_type != 'Deposit' %}amount-negative{% else %}amount-positive{% endif %}">${{ t.amount }}</td>
                         <td>{% if user != t.sender %} Receive {% else %} {{ t.transaction_type }} {% endif %}</td>
                     </tr>
