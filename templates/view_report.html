@@ -29,11 +29,11 @@
         <div class="report-summary">
             <div class="summary-card">
                 <h3>Total Income</h3>
-                <p class="amount positive">${{ total_balance|default:0 }}</p>
+                <p class="amount positive">${{ user.total_income|default:0 }}</p>
             </div>
             <div class="summary-card">
                 <h3>Total Expenses</h3>
-                <p class="amount negative">${{ total_expenses|default:0 }}</p>
+                <p class="amount negative">${{ user.total_expense|default:0 }}</p>
             </div>
             <div class="summary-card">
                 <h3>Net Balance</h3>
@@ -54,13 +54,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in transactions %}
+                    {% for t in transaction %}
                     <tr>
-                        <td>{{ transaction.date }}</td>
-                        <td>{{ transaction.description }}</td>
-                        <td>{{ transaction.category }}</td>
-                        <td class="{% if transaction.type == 'expense' %}negative{% else %}positive{% endif %}">${{ transaction.amount }}</td>
-                        <td>{{ transaction.get_type_display }}</td>
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.description }}</td>
+                        <td>{{ t.category }}</td>
+                        <td class="{% if t.sender == user and t.transaction_type != 'Deposit' %}amount-negative{% else %}amount-positive{% endif %}">${{ t.amount }}</td>
+                        <td>{% if user != t.sender %} Receive {% else %} {{ t.transaction_type }} {% endif %}</td>
                     </tr>
                     {% empty %}
                     <tr>

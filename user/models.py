@@ -15,6 +15,8 @@ class Wallet_User (models.Model):
     last_month = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     currently_month = models.IntegerField(default=0)
     currently_year = models.IntegerField(default=0)
+    total_income = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_expense = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -22,4 +24,3 @@ class Wallet_User (models.Model):
 
     def __str__(self):
         return self.name
-

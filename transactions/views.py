@@ -28,12 +28,8 @@ def view_send(request):
         purpose = request.POST.get('purpose', '').strip()
         description = request.POST.get('description', '').strip()
 
-        print(rec_name, rec_email, amount_value, purpose)
-
         if not rec_name or not rec_email or not amount_value or not purpose:
             context['error'] = 'Please fill in all required fields.'
-            #
-            print("...")
             return render(request, 'send_money.html', context)
 
         try:
@@ -53,19 +49,19 @@ def view_send(request):
         recipient = Wallet_User.objects.filter(name=rec_name, email=rec_email).first()
         if not recipient:
             context['error'] = 'Recipient not found.'
-            #
-            print("Recipient not found")
+
             return render(request, 'send_money.html', context)
 
         if recipient.id == user.id:
             context['error'] = 'You cannot send money to yourself.'
-            print("You cannot send money to yourself.")
             return render(request, 'send_money.html', context)
 
 
         user.total_balance = float(user.total_balance) - amount
         recipient.total_balance = float(recipient.total_balance) + amount
         user.monthly_spending = float(user.monthly_spending) + amount
+        user.total_expense = float(user.total_expense) + amount
+        recipient.total_income = float(recipient.total_income) + amount
         user.save()
         recipient.save()
 

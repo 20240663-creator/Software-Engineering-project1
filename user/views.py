@@ -83,7 +83,8 @@ def view_settings(request):
 def view_report(request):
     user_id = request.session.get("user_id")
     user_info = Wallet_User.objects.get(id=user_id)
-    return render(request,'view_report.html',{'user':user_info})
+    transaction = transactions.Transaction.objects.filter(Q(sender=user_info) | Q(receiver=user_info)).order_by('-date')[:3]
+    return render(request,'view_report.html',{'user':user_info,'transaction':transaction})
 
 def view_deposit(request):
     user_id = request.session.get('user_id')
