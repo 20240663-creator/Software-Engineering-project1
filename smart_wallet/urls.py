@@ -18,10 +18,10 @@ from django.contrib import admin
 from django.db import transaction
 from django.urls import path,include
 from user import views
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/',include('user.urls')),
-    path('',views.view_intro,name='intro_page'),
     path('transaction/',include('transactions.url')),
-]
+]+ debug_toolbar_urls()

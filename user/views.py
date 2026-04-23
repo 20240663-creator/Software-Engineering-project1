@@ -2,124 +2,78 @@ from pydoc import describe
 from decimal import Decimal
 from django.utils import timezone
 from django.utils.timezone import now
-from django.db.models import Sum
 from django.shortcuts import render, redirect
 from .models import Wallet_User
 from transactions import models as transactions
 from django.db.models import Q
+from rest_framework import generics, viewsets
+from rest_framework import serializers
+from .serializers import *
+from django.db import transaction
 
 
-def view_home(request):
-    today = now()
-    user_id = request.session.get('user_id')
-    user = Wallet_User.objects.get(id=user_id)
+class Users(generics.ListCreateAPIView):
+    queryset = Wallet_User.objects.all()
+    serializer_class = UserSerializerRegister
 
-    if int(today.month) != user.currently_month or int(today.year) != user.currently_year:
-        user.currently_month = int(today.month)
-        user.last_month = user.monthly_spending
-        user.currently_year = today.year
-        user.monthly_spending = 0
-        user.save()
+class UsersEdit(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Wallet_User.objects.all()
+    serializer_class = UserSeializer
+    lookup_field = 'pk'
 
-    transaction = transactions.Transaction.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('-date')[:3]
-    context = {'user': user, 'transaction': transaction}
-    if user.last_month != 0:
-        context['spend_pre'] = round(((user.total_balance - user.last_month) / user.last_month) * 100,2)
-    else:
-        context['spend_pre'] = 0
+class Deposite(viewsets.ModelViewSet):
+    queryset = transactions.Transaction.objects.filter(transaction_type='Deposit')
+    serializer_class = DepositeSerializer
 
-    if user.total_balance != 0:
-        context['monthly_spend'] = round(user.monthly_spending / user.total_balance * 100,2)
-    else:
-        context['monthly_spend'] = 0
-    return render(request, 'index.html',context)
+    def perform_create(self, serializer):
+            
+        with transaction.atomic():
+            user_id = self.request.session.get("user_id")
+            if not user_id:
+                raise serializers.ValidationError("User not logged in")
+            
+            user = Wallet_User.objects.get(id=user_id)
+            amount = serializer.validated_data['amount']
 
-
-def view_profile(request):
-
-    user_id = request.session.get("user_id")
-    if user_id:
-        user = Wallet_User.objects.get(id=user_id)
-        return render(request, 'profile.html', {'user': user})
-
-    return redirect("login")
+            user.total_balance += amount
+            user.total_income += amount
+            user.monthly_balance += amount
+            user.save()
+            serializer.save(sender=user,receiver=user,transaction_type='Deposit')
 
 
-def view_login(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        if Wallet_User.objects.filter(email = email, password = password).exists():
-            user = Wallet_User.objects.get(email = email, password = password)
-            request.session["user_id"] = user.id
-            return redirect('home')
-        else:
-            return render(request, 'login.html')
-    else:
-        return render(request, 'login.html')
-def view_register(request):
-    if request.method == "POST":
-        if Wallet_User.objects.filter(email = request.POST.get("email")):
-            return render(request,'register.html')
-        else:
-            name = request.POST.get("name")
-            email = request.POST.get("email")
-            password = request.POST.get("password")
-            Wallet_User.objects.create(
-                email = email,
-                name = name,
-                password = password,
-            )
-            return redirect('login')
-    return render(request, 'register.html')
 
 
-def view_intro(request):
-    return render(request, 'intro.html')
+        
 
-def view_settings(request):
-    return render(request, 'settings.html')
+class SendMoney(generics.ListCreateAPIView):
 
-def view_report(request):
-    user_id = request.session.get("user_id")
-    user_info = Wallet_User.objects.get(id=user_id)
-    transaction = transactions.Transaction.objects.filter(Q(sender=user_info) | Q(receiver=user_info)).order_by('-date')[:3]
-    return render(request,'view_report.html',{'user':user_info,'transaction':transaction})
+    queryset = transactions.Transaction.objects.filter(transaction_type='send')
+    serializer_class = SendSerializer
 
-def view_deposit(request):
-    user_id = request.session.get('user_id')
-    user = Wallet_User.objects.get(id=user_id)
-    if request.method == 'POST':
-        context = {'user': user}
-        try:
-            new_amount = Decimal(request.POST.get("amount"))
-            if new_amount > 0:
-                user.total_balance += new_amount
-                user.save()
-        except:
-            return redirect('deposit')
-        context['method'] = request.POST.get("method")
-        context['account'] = request.POST.get("account")
-        context['description'] = request.POST.get("description")
-        transactions.Transaction.objects.create(
-            sender = user,
-            receiver = user,
-            amount = new_amount,
-            fee = 0,
-            description = request.POST.get("description"),
-            date=timezone.now(),
-            status = 'success',
-            transaction_type = 'Deposit',
-        )
-        user.total_income += new_amount
-        user.save()
-        return render(request, 'deposit.html', context)
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            user_id = self.request.session.get("user_id")
+            if not user_id:
+                raise serializers.ValidationError("User not logged in")
+            
+            sender = Wallet_User.objects.get(id=user_id)
+            receiver = serializer.validated_data['receiver']
+            amount = serializer.validated_data['amount']
 
-    return render(request, 'deposit.html',{'user':user})
+            sender.total_balance -= amount
+            sender.monthly_spending += amount 
+            sender.monthly_balance -= amount
+            sender.total_expense += amount
+            sender.save()
 
+            receiver.total_balance += amount
+            receiver.monthly_balance += amount
+            receiver.total_income += amount
+            receiver.save()
+            
+            serializer.save(sender=sender,transaction_type='send')
 
-def view_logout(request):
-    if 'user_id' in request.session:
-        del request.session['user_id']
-    return redirect('login')
+    
+########################################
 

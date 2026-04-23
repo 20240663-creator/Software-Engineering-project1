@@ -1,14 +1,16 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from rest_framework.routers import DefaultRouter
 
+
+
+router = DefaultRouter()
+router.register(r'deposit', views.Deposite, basename='deposit')
 
 urlpatterns = [
-    path('home/', views.view_home, name='home'),
-    path('profile/', views.view_profile, name='profile'),
-    path('login/', views.view_login, name='login'),
-    path('register/', views.view_register, name='register'),
-    path('settings/',views.view_settings, name='settings'),
-    path('view_report/', views.view_report, name='view_report'),
-    path('deposit/', views.view_deposit, name='deposit'),
-    path('logout/', views.view_logout, name='logout'),
+    #api views
+    path('users/',views.Users.as_view()),
+    path('users/<int:pk>',views.UsersEdit.as_view()),
+    path('',include(router.urls)),
+    path('send-money/',views.SendMoney.as_view()),   
 ]
