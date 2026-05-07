@@ -23,7 +23,7 @@
 
     <div class="container" id="user-home-container">
         <div class="welcome-section" id="user-home-welcome">
-            <h1>Welcome back, {{user.name}}! 👋</h1>
+            <h1>Welcome back, {{user.first_name}}! 👋</h1>
             <p>Manage your finances with ease. Here's your financial overview.</p>
         </div>
 
@@ -31,25 +31,21 @@
             <div class="card">
                 <div class="card-title">Total Balance</div>
                 <div class="card-value">{{ user.total_balance }}</div>
-                <div class="card-subtitle">+{{ spend_pre }}% from last month</div>
             </div>
 
             <div class="card">
-                <div class="card-title">Monthly Spending</div>
-                <div class="card-value">{{ user.monthly_spending }}</div>
-                <div class="card-subtitle">{{ monthly_spend }}% of budget used</div>
+                <div class="card-title">Total income</div>
+                <div class="card-value">{{ user.total_income }}</div>
             </div>
 
             <div class="card">
-                <div class="card-title">Savings Goal</div>
-                <div class="card-value">{{ user.saving_goals  }}</div>
-                <div class="card-subtitle">18% completed</div>
+                <div class="card-title">Total Expenses</div>
+                <div class="card-value">{{ user.total_expense }}</div>
             </div>
 
             <div class="card">
-                <div class="card-title">Pending Transfers</div>
-                <div class="card-value">2</div>
-                <div class="card-subtitle">Total: $450.00</div>
+                <div class="card-title">Saving goals</div>
+                <div class="card-value">{{ user.saving_goals }}</div>
             </div>
         </div>
 
@@ -72,8 +68,8 @@
                 <div class="transaction-type">{{ t.description }}</div>
                 <div class="transaction-date">{{ t.date }}</div>
             </div>
-            <div class="transaction-amount {% if t.sender == user and t.transaction_type != 'Deposit'%}amount-negative{% else %}amount-positive{% endif %}">
-                {% if t.sender == user and t.transaction_type != 'Deposit' %}-{% else %}+{% endif %}${{ t.amount|floatformat:2 }}
+            <div class="transaction-amount {% if t.wallet == user.wallet and t.type != 'income'%}amount-negative{% else %}amount-positive{% endif %}">
+                {% if t.wallet == user.wallet and t.type != 'income' %}-{% else %}+{% endif %}${{ t.amount|floatformat:2 }}
             </div>
         </li>
         {% empty %}

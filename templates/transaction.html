@@ -28,17 +28,19 @@
                         <th>Status</th>
                         <th>Type</th>
                         <th>Amount</th>
-                        <th>Balance</th>
+                        <th>Fee</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for tx in transactions %}
                         <tr>
-                            <td>{{ tx.date }}</td>
-                            <td>{{ tx.status }}</td>
-                            <td>{% if user != tx.sender %} Receive {% else %} {{ tx.transaction_type }} {% endif %}</td>
-                            <td class="amount  {% if tx.amount < 0 %}amount-negative{% else %}amount-positive{% endif %}">{{ tx.amount|floatformat:2 }}</td>
-                            <td>${{ total_balance|floatformat:2 }}</td>
+                            <td>{{ tx.date|date:"M d, Y H:i" }}</td>
+                            <td><span class="badge badge-success">Completed</span></td>
+                            <td>{{ tx.get_type_display }}</td>
+                            <td class="amount {% if tx.type == 'send' or tx.type == 'expense' %}amount-negative{% else %}amount-positive{% endif %}">
+                                {% if tx.type == 'send' or tx.type == 'expense' %}-{% endif %}{{ tx.amount|floatformat:2 }}
+                            </td>
+                            <td>${{ tx.fee|floatformat:2 }}</td>
                         </tr>
                     {% empty %}
                         <tr>

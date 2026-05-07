@@ -57,11 +57,13 @@
                 <tbody>
                     {% for t in transaction %}
                     <tr>
-                        <td>{{ t.date }}</td>
+                        <td>{{ t.date|date:"M d, Y H:i" }}</td>
                         <td>{{ t.description }}</td>
-                        <td>{{ t.status }}</td>
-                        <td class="{% if t.sender == user and t.transaction_type != 'Deposit' %}amount-negative{% else %}amount-positive{% endif %}">${{ t.amount }}</td>
-                        <td>{% if user != t.sender %} Receive {% else %} {{ t.transaction_type }} {% endif %}</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                        <td class="{% if t.type == 'send' or t.type == 'expense' %}amount-negative{% else %}amount-positive{% endif %}">
+                            {% if t.type == 'send' or t.type == 'expense' %}-{% endif %}{{ t.amount|floatformat:2 }}
+                        </td>
+                        <td>{{ t.get_type_display }}</td>
                     </tr>
                     {% empty %}
                     <tr>
