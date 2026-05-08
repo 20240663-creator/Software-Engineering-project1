@@ -1,11 +1,12 @@
 from decimal import Decimal
 from django.utils import timezone
-from django.shortcuts import render, redirect
-from django.db.models import Q
+from django.shortcuts import get_object_or_404, render, redirect
+from django.db.models import Q, Sum
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from . import models as trans_models
 from user import models as user_models
+
 
 User = get_user_model()
 
@@ -142,3 +143,140 @@ def view_send(request):
 def view_request(request):
     """Display request money form."""
     return render(request, 'request_money.html')
+
+
+@login_required
+def view_categories(request):
+    user = request.user
+    categories = trans_models.Category.objects.filter(wallet=user.wallet)
+    context = {'cat' : categories}
+    context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
+
+
+    if request.method == 'POST':
+        if 'add_category' in request.POST:
+
+            wallet = user.wallet
+            name = request.POST.get('name')
+            if trans_models.Category.objects.filter(name=name,wallet=wallet).exists():
+                return render(request,'categories.html',{'error' : 'Category is alredy exists'})
+            trans_models.Category.objects.create(
+                wallet=wallet,
+                name=name,
+            )
+            context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
+            return render(request,'categories.html',context)
+        
+        elif 'delete_category' in request.POST:
+            trans_models.Category.objects.filter(
+                id=request.POST.get('category_id')
+            ).delete()
+            context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
+            context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
+
+            return render(request,'categories.html',context)
+
+    return render(request,'categories.html',context)
+
+
+@login_required
+def view_budget(request):
+    user = request.user
+    wallet = user.wallet
+
+    categories = trans_models.Category.objects.filter(wallet=wallet)
+    budgets = trans_models.Budget.objects.filter(wallet=wallet)
+
+    total_spent = budgets.aggregate(total=Sum('spended'))['total'] or 0
+    total_remaining = budgets.aggregate(total=Sum('remaining'))['total'] or 0
+
+    for budget in budgets:
+        budget.spent = budget.spended or 0
+        budget.remaining = budget.amount - budget.spent
+
+    context = {
+        'categories': categories,
+        'budgets': budgets,
+        'editing_budget': None,
+        'total_spent':total_spent,
+        'total_remaining':total_remaining
+    }
+
+    # ================= EDIT MODE (GET) =================
+    edit_id = request.GET.get('edit_id')
+    if edit_id:
+        context['editing_budget'] = trans_models.Budget.objects.get(id=edit_id)
+
+    # ================= POST =================
+    if request.method == 'POST':
+
+        # -------- CREATE / UPDATE --------
+        if 'create-budget' in request.POST:
+
+            budget_id = request.POST.get('budget_id')
+            category_id = request.POST.get('category_id')
+            amount = request.POST.get('amount')
+            start_at = request.POST.get('start_at')
+            end_at = request.POST.get('end_at')
+
+            category_obj = trans_models.Category.objects.get(id=category_id)
+
+            if start_at > end_at:
+                context['message'] = 'Dates are not valid'
+                return render(request, 'budget.html', context)
+
+            # UPDATE
+            if budget_id:
+                budget = trans_models.Budget.objects.get(id=budget_id, wallet=wallet)
+                budget.category = category_obj
+                budget.amount = amount
+                budget.start_at = start_at
+                budget.end_at = end_at
+                budget.save()
+
+            # CREATE
+            else:
+                if trans_models.Budget.objects.filter(wallet=wallet, category=category_obj).exists():
+                    context['message'] = 'Budget already exists for this category'
+                    return render(request, 'budget.html', context)
+
+                trans_models.Budget.objects.create(
+                    wallet=wallet,
+                    category=category_obj,
+                    amount=amount,
+                    spended=0,
+                    start_at=start_at,
+                    end_at=end_at,
+                    percentage=0,
+                    remaining=amount
+                )
+
+            return redirect('budget')
+
+    return render(request, 'budget.html', context)
+
+@login_required
+def delete_budget(request, id):
+    user = request.user
+    wallet = user.wallet
+
+    budget = get_object_or_404(trans_models.Budget, id=id, wallet=wallet)
+    budget.delete()
+
+    return redirect('budget')
+
+@login_required
+def view_add_transaction(request):
+
+    if request.method == 'POST':
+        category = request.POST.get
+
+    return render(request,'add_transaction.html')
+
+
+@login_required
+def view_saving_goals(request):
+
+    
+
+    return render(request,'saving-goals.html')

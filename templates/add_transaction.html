@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Add Expense or Saving</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Add Transaction Page - Expense & Saving only, with conditional fields */
+        #transaction-body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+
+        #transaction-header {
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(2px);
+        }
+
+        #transaction-nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #transaction-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Form Card */
+        .form-transaction-card {
+            background: white;
+            border-radius: 32px;
+            padding: 36px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #4f46e5;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-subtitle {
+            color: #6b7280;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+            border-left: 3px solid #667eea;
+            padding-left: 16px;
+        }
+
+        .form-divider {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #c084fc);
+            width: 100px;
+            margin: 16px 0 32px 0;
+            border-radius: 4px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+        }
+
+        .form-field-full {
+            grid-column: span 2;
+        }
+
+        .form-field {
+            margin-bottom: 8px;
+        }
+
+        .form-field label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-field label .required {
+            color: #ef4444;
+            margin-left: 3px;
+        }
+
+        .form-field input, 
+        .form-field select,
+        .form-field textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            background: #fefefe;
+            font-family: inherit;
+        }
+
+        .form-field input:focus, 
+        .form-field select:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .amount-wrapper {
+            position: relative;
+        }
+        .amount-wrapper span {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-weight: 700;
+            z-index: 2;
+        }
+        .amount-wrapper input {
+            padding-left: 42px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            background: #f8fafc;
+            padding: 10px 20px;
+            border-radius: 60px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .radio-option:hover {
+            background: #eef2ff;
+            border-color: #667eea;
+        }
+        .radio-option input {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+            margin: 0;
+        }
+        .radio-option label {
+            margin: 0;
+            font-weight: 600;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        .conditional-field {
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .hidden-field {
+            display: none;
+        }
+
+        .help-text {
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 6px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #e6edf4;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 24px;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+
+        .info-card h4 {
+            color: #4f46e5;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .info-card p, .info-card li {
+            font-size: 0.8rem;
+            color: #374151;
+        }
+
+        .info-card ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .alert-msg {
+            padding: 14px 20px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            border-left: 5px solid #10b981;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-left: 5px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #e0e7ff;
+            border-left: 5px solid #6366f1;
+            color: #3730a3;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.75);
+            text-align: center;
+            padding: 24px;
+            color: #cbd5e1;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-field-full {
+                grid-column: span 1;
+            }
+            .form-transaction-card {
+                padding: 24px;
+            }
+            .form-title {
+                font-size: 1.4rem;
+            }
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+            .radio-group {
+                gap: 12px;
+            }
+            .radio-option {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body id="transaction-body">
+
+<header id="transaction-header">
+    <nav id="transaction-nav">
+        <div class="logo" style="font-size: 1.7rem;">💰 Smart Wallet</div>
+        <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+            <li><a href="{% url 'home' %}" style="color: white;">Dashboard</a></li>
+            <li><a href="{% url 'transactions' %}" style="color: white;">History</a></li>
+            <li><a href="{% url 'send_money' %}" style="color: white;">Send</a></li>
+            <li><a href="{% url 'request_money' %}" style="color: white;">Request</a></li>
+            <li><a href="{% url 'settings' %}" style="color: white;">Settings</a></li>
+            <li><a href="{% url 'profile' %}" style="color: white;">Profile</a></li>
+            <li><a href="{% url 'logout' %}" style="color: white;">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div id="transaction-container">
+    <!-- Welcome Header -->
+    <div class="welcome-section" style="background: rgba(255,255,255,0.9); border-radius: 28px; padding: 24px 32px; margin-bottom: 32px;">
+        <h1 style="color: #4f46e5; margin-bottom: 8px;">➕ Add Expense or Saving</h1>
+        <p style="color: #334155;">Record your expenses or add money to savings goals. Category is optional — you can skip it if not needed.</p>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-msg {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Main Transaction Form (No Income) -->
+    <div class="form-transaction-card">
+        <div class="form-title">
+            📝 Transaction Details
+        </div>
+        <div class="form-subtitle">
+            Choose between Expense or Saving. Fill the required fields below.
+        </div>
+        <div class="form-divider"></div>
+
+        <form method="post" action="{% url 'add_transaction' %}" id="transactionForm">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <!-- Transaction Type (Expense / Saving only) -->
+                <div class="form-field">
+                    <label>Transaction Type <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="transaction_type" value="expense" 
+                                   id="typeExpense" {% if selected_type == 'expense' %}checked{% endif %} required>
+                            <span>💸 Expense</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="transaction_type" value="saving" 
+                                   id="typeSaving" {% if selected_type == 'saving' %}checked{% endif %}>
+                            <span>🏦 Saving</span>
+                        </label>
+                    </div>
+                    <div class="help-text">Expense: money spent from wallet. Saving: money moved to a savings goal.</div>
+                </div>
+
+                <!-- Amount -->
+                <div class="form-field">
+                    <label>Amount <span class="required">*</span></label>
+                    <div class="amount-wrapper">
+                        <span>$</span>
+                        <input type="number" name="amount" step="0.01" min="0.01" placeholder="0.00" required
+                               value="{{ form_amount|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Category (Optional) -->
+                <div class="form-field">
+                    <label>Category (Optional)</label>
+                    <select name="category_id">
+                        <option value="">-- No Category --</option>
+                        {% for category in user_categories %}
+                            <option value="{{ category.id }}" {% if selected_category_id == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Optional: Only needed if you want to track this against a budget.</div>
+                </div>
+
+                <!-- Budget Field (only visible for Expense type) -->
+                <div class="form-field conditional-field" id="budgetField">
+                    <label>Link to Budget (Optional)</label>
+                    <select name="budget_id" id="budgetSelect">
+                        <option value="">-- No Budget --</option>
+                        {% for budget in active_budgets %}
+                            <option value="{{ budget.id }}" {% if selected_budget_id == budget.id|stringformat:"s" %}selected{% endif %}>
+                                {{ budget.category.name }} - ${{ budget.amount|floatformat:2 }} ({{ budget.start_at|date:"M d" }} - {{ budget.end_at|date:"M d" }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Link this expense to an active budget to track spending against your limit.</div>
+                </div>
+
+                <!-- Savings Goal Field (only visible for Saving type) -->
+                <div class="form-field conditional-field hidden-field" id="savingsField">
+                    <label>Select Savings Goal <span class="required" id="savingsRequired" style="display: none;">*</span></label>
+                    <select name="savings_goal_id" id="savingsGoalSelect">
+                        <option value="">-- Select a Goal --</option>
+                        {% for goal in active_savings_goals %}
+                            <option value="{{ goal.id }}" {% if selected_savings_goal_id == goal.id|stringformat:"s" %}selected{% endif %}>
+                                {{ goal.name }} - Saved: ${{ goal.current_amount|floatformat:2 }} / ${{ goal.target_amount|floatformat:2 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">Choose which savings goal to add this amount to. Required when type is Saving.</div>
+                    {% if not active_savings_goals %}
+                        <div class="help-text" style="color: #ef4444;">⚠️ No active savings goals. <a href="" style="color: #4f46e5;">Create a goal first</a></div>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="form-field-full">
+                    <label>Description / Note</label>
+                    <textarea name="description" rows="3" placeholder="e.g., Grocery shopping, Monthly saving contribution...">{{ form_description|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn-action btn-primary">✅ Add Transaction</button>
+                <button type="reset" class="btn-action btn-secondary">⟳ Clear Form</button>
+                <a href="{% url 'transactions' %}" class="btn-action btn-secondary">📋 View All Transactions</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Quick Info Cards -->
+    <div class="info-cards">
+        <div class="info-card">
+            <h4>💸 Expense</h4>
+            <p>Record money you spend. Decreases your wallet balance.</p>
+            <ul>
+                <li>You can optionally select a category</li>
+                <li>Link to a budget to track spending limits</li>
+                <li>Budget progress updates automatically</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <h4>🏦 Saving</h4>
+            <p>Move money toward your savings goals.</p>
+            <ul>
+                <li>You must select a savings goal</li>
+                <li>Money is deducted from wallet and added to goal</li>
+                <li>Creates a 'saving' type transaction</li>
+            </ul>
+        </div>
+        <div class="info-card">
+            <h4>📌 Category (Optional)</h4>
+            <p>Categories help organize your transactions but are not required.</p>
+            <ul>
+                <li>You can leave category empty</li>
+                <li>Only needed if you want budget tracking</li>
+                <li>Manage categories from Settings</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Active Budgets & Goals Preview -->
+    {% if active_budgets or active_savings_goals %}
+    <div style="background: rgba(255,255,255,0.85); border-radius: 24px; padding: 24px; margin-top: 24px;">
+        <h4 style="color: #4f46e5; margin-bottom: 16px;">📊 Your Active Budgets & Goals</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+            {% if active_budgets %}
+            <div style="flex: 1; min-width: 200px;">
+                <strong>🎯 Active Budgets</strong>
+                <ul style="margin-top: 8px; font-size: 0.8rem;">
+                    {% for b in active_budgets|slice:":5" %}
+                        <li>{{ b.category.name }}: ${{ b.spended|floatformat:2 }} / ${{ b.amount|floatformat:2 }} ({{ b.percentage|floatformat:0 }}%)</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {% if active_savings_goals %}
+            <div style="flex: 1; min-width: 200px;">
+                <strong>🏆 Active Savings Goals</strong>
+                <ul style="margin-top: 8px; font-size: 0.8rem;">
+                    {% for g in active_savings_goals|slice:":5" %}
+                        <li>{{ g.name }}: ${{ g.current_amount|floatformat:2 }} / ${{ g.target_amount|floatformat:2 }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<footer>
+    <p>© 2026 Smart Wallet — Smart Expenses, Smart Savings ✨</p>
+</footer>
+
+<!-- Pure HTML/CSS Conditional Fields (No JavaScript required - but minimal inline for UX) 
+     Since Django can handle with page reload, but we add small inline JS for better UX without reload -->
+<script>
+    // Simple conditional field toggling (pure UX enhancement, not required for functionality)
+    // The form still works without JS because Django backend will validate.
+    (function() {
+        const typeExpense = document.getElementById('typeExpense');
+        const typeSaving = document.getElementById('typeSaving');
+        const budgetField = document.getElementById('budgetField');
+        const savingsField = document.getElementById('savingsField');
+        const savingsGoalSelect = document.getElementById('savingsGoalSelect');
+        
+        function toggleFields() {
+            if (!budgetField || !savingsField) return;
+            if (typeExpense.checked) {
+                budgetField.classList.remove('hidden-field');
+                savingsField.classList.add('hidden-field');
+                // Remove required attribute from savings goal
+                if (savingsGoalSelect) savingsGoalSelect.removeAttribute('required');
+                // Budget select is optional
+            } else if (typeSaving.checked) {
+                budgetField.classList.add('hidden-field');
+                savingsField.classList.remove('hidden-field');
+                // Make savings goal required for better UX
+                if (savingsGoalSelect) savingsGoalSelect.setAttribute('required', 'required');
+            }
+        }
+        
+        if (typeExpense && typeSaving) {
+            typeExpense.addEventListener('change', toggleFields);
+            typeSaving.addEventListener('change', toggleFields);
+            toggleFields(); // initial state
+        }
+        
+        // Also handle reset button to reset visibility (optional)
+        const resetBtn = document.querySelector('button[type="reset"]');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                setTimeout(toggleFields, 10);
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>

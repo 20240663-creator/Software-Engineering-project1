@@ -63,6 +63,7 @@ class Budget(models.Model):
     start_at = models.DateField()
     end_at = models.DateField()
     percentage = models.IntegerField(default=0)
+    remaining = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return f"{self.category.name}"

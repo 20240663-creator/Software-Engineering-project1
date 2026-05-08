@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Savings Goals</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Savings Goals Page - Pure Django, No Custom JS */
+        #savings-body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+
+        #savings-header {
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(2px);
+        }
+
+        #savings-nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #savings-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Stats Cards */
+        .savings-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-savings-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 24px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-savings-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1f2937;
+            line-height: 1.2;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 8px;
+        }
+
+        /* Form Card */
+        .form-savings-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-divider {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #c084fc);
+            width: 80px;
+            margin: 16px 0 28px 0;
+            border-radius: 4px;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .form-field {
+            margin-bottom: 6px;
+        }
+
+        .form-field label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-field label .required {
+            color: #ef4444;
+            margin-left: 3px;
+        }
+
+        .form-field input, 
+        .form-field select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            background: #fefefe;
+            font-family: inherit;
+        }
+
+        .form-field input:focus, 
+        .form-field select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .amount-wrapper {
+            position: relative;
+        }
+        .amount-wrapper span {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-weight: 600;
+            z-index: 2;
+        }
+        .amount-wrapper input {
+            padding-left: 36px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .btn-savings {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #e6edf4;
+        }
+
+        /* Goals Table */
+        .goals-table-container {
+            background: white;
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .goals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .goals-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #f8fafc;
+            font-weight: 700;
+            color: #4f46e5;
+            border-bottom: 2px solid #e0e7ff;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .goals-table td {
+            padding: 18px 12px;
+            border-bottom: 1px solid #f0eefa;
+            vertical-align: middle;
+            color: #1e293b;
+        }
+
+        .goals-table tr:hover td {
+            background-color: #faf9ff;
+        }
+
+        .progress-bg {
+            background: #e2e8f0;
+            border-radius: 40px;
+            overflow: hidden;
+            height: 10px;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+            height: 100%;
+            border-radius: 40px;
+            width: 0%;
+        }
+
+        .progress-fill.completed {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .badge-inprogress {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-complete {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .btn-edit:hover {
+            background: #e0e7ff;
+        }
+
+        .btn-delete {
+            background: #fff1f0;
+            color: #e11d48;
+        }
+
+        .btn-delete:hover {
+            background: #ffe4e2;
+        }
+
+        .btn-deposit {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .btn-deposit:hover {
+            background: #bae6fd;
+        }
+
+        .empty-table-msg {
+            text-align: center;
+            padding: 56px 20px;
+            color: #9ca3af;
+        }
+
+        .alert-msg {
+            padding: 14px 20px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            border-left: 5px solid #10b981;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border-left: 5px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #e0e7ff;
+            border-left: 5px solid #6366f1;
+            color: #3730a3;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.75);
+            text-align: center;
+            padding: 24px;
+            color: #cbd5e1;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 700px) {
+            .two-columns { grid-template-columns: 1fr; }
+            .goals-table th, .goals-table td { padding: 12px 8px; font-size: 0.8rem; }
+            .form-buttons { flex-direction: column; }
+            .btn-savings { justify-content: center; }
+        }
+    </style>
+</head>
+<body id="savings-body">
+
+<header id="savings-header">
+    <nav id="savings-nav">
+        <div class="logo" style="font-size: 1.7rem;">💰 Smart Wallet</div>
+        <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+            <li><a href="{% url 'home' %}" style="color: white;">Dashboard</a></li>
+            <li><a href="{% url 'transactions' %}" style="color: white;">Transactions</a></li>
+            <li><a href="{% url 'send_money' %}" style="color: white;">Send</a></li>
+            <li><a href="{% url 'request_money' %}" style="color: white;">Request</a></li>
+            <li><a href="{% url 'settings' %}" style="color: white;">Settings</a></li>
+            <li><a href="{% url 'profile' %}" style="color: white;">Profile</a></li>
+            <li><a href="{% url 'logout' %}" style="color: white;">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div id="savings-container">
+    <!-- welcome area -->
+    <div class="welcome-section" style="background: rgba(255,255,255,0.9); border-radius: 28px; padding: 24px 32px; margin-bottom: 32px;">
+        <h1 style="color: #4f46e5; margin-bottom: 8px;">🎯 Savings Goals</h1>
+        <p style="color: #334155;">Set your financial targets, track your progress, and celebrate when you reach them! Every deposit brings you closer.</p>
+    </div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-msg {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Statistics Summary -->
+    <div class="savings-stats-grid">
+        <div class="stat-savings-card">
+            <div class="stat-label">Active Goals</div>
+            <div class="stat-number">{{ active_goals_count|default:"0" }}</div>
+            <div class="stat-sub">In progress</div>
+        </div>
+        <div class="stat-savings-card">
+            <div class="stat-label">Completed Goals</div>
+            <div class="stat-number">{{ completed_goals_count|default:"0" }}</div>
+            <div class="stat-sub">Achieved 🎉</div>
+        </div>
+        <div class="stat-savings-card">
+            <div class="stat-label">Total Target</div>
+            <div class="stat-number">${{ total_target_amount|floatformat:2|default:"0.00" }}</div>
+            <div class="stat-sub">All goals combined</div>
+        </div>
+        <div class="stat-savings-card">
+            <div class="stat-label">Total Saved</div>
+            <div class="stat-number">${{ total_saved_amount|floatformat:2|default:"0.00" }}</div>
+            <div class="stat-sub">Towards your dreams</div>
+        </div>
+    </div>
+
+    <!-- CREATE / EDIT SAVINGS GOAL FORM -->
+    <div class="form-savings-card">
+        <div class="form-title">
+            {% if editing_goal %}✏️ Edit Goal{% else %}🏆 Create New Savings Goal{% endif %}
+        </div>
+        <div class="form-divider"></div>
+        <form method="post" action="">
+            {% csrf_token %}
+            {% if editing_goal %}
+                <input type="hidden" name="goal_id" value="{{ editing_goal.id }}">
+            {% endif %}
+
+            <div class="two-columns">
+                <div class="form-field">
+                    <label>Goal Name <span class="required">*</span></label>
+                    <input type="text" name="name" placeholder="e.g., New Laptop, Vacation, Emergency Fund" required
+                           value="{% if editing_goal %}{{ editing_goal.name }}{% endif %}">
+                </div>
+
+                <div class="form-field">
+                    <label>Target Amount <span class="required">*</span></label>
+                    <div class="amount-wrapper">
+                        <span>$</span>
+                        <input type="number" name="target_amount" step="0.01" min="0.01" placeholder="0.00" required
+                               value="{% if editing_goal %}{{ editing_goal.target_amount }}{% endif %}">
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Current Amount (Optional)</label>
+                    <div class="amount-wrapper">
+                        <span>$</span>
+                        <input type="number" name="current_amount" step="0.01" min="0" placeholder="0.00"
+                               value="{% if editing_goal %}{{ editing_goal.current_amount }}{% endif %}">
+                    </div>
+                    <small style="color: #6c757d;">Initial money already saved toward this goal</small>
+                </div>
+
+                <div class="form-field">
+                    <label>Deadline <span class="required">*</span></label>
+                    <input type="date" name="deadline" required
+                           value="{% if editing_goal %}{{ editing_goal.deadline|date:'Y-m-d' }}{% endif %}">
+                </div>
+
+                {% if editing_goal %}
+                <div class="form-field">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="in_progress" {% if editing_goal.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="complete" {% if editing_goal.status == 'complete' %}selected{% endif %}>Complete 🎉</option>
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn-savings btn-primary">
+                    {% if editing_goal %}💾 Update Goal{% else %}✅ Create Goal{% endif %}
+                </button>
+                {% if editing_goal %}
+                    <a href="{% url 'savings_manage' %}" class="btn-savings btn-secondary">🗑️ Cancel Edit</a>
+                {% else %}
+                    <button type="reset" class="btn-savings btn-secondary">⟳ Clear Form</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- SAVINGS GOALS LIST -->
+    <div class="goals-table-container">
+        <div class="section-header">
+            <h2>📊 Your Savings Goals</h2>
+            <span style="font-size: 0.8rem; color: #6c757d;">Track progress & add savings via transactions</span>
+        </div>
+
+        {% if savings_goals %}
+            <table class="goals-table">
+                <thead>
+                    <tr>
+                        <th>Goal Name</th>
+                        <th>Target</th>
+                        <th>Saved</th>
+                        <th>Remaining</th>
+                        <th>Progress</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for goal in savings_goals %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ goal.name }}</td>
+                            <td>${{ goal.target_amount|floatformat:2 }}</td>
+                            <td style="color: #059669; font-weight: 500;">${{ goal.current_amount|floatformat:2 }}</td>
+                            <td class="{% if remaining < 0 %}negative{% endif %}">
+                                ${{ remaining|floatformat:2 }}
+                            </td>
+                            <td style="min-width: 150px;">
+                                <div class="progress-bg">
+                                    <div class="progress-fill {% if goal.status == 'complete' %}completed{% endif %}" 
+                                         style="width: {% if percent > 1 %}100{% else %}{{ percent|floatformat:2|default:'0' }}{% endif %}%;"></div>
+                                </div>
+                                <span style="font-size: 0.7rem;">{{ percent_display|floatformat:0 }}% completed</span>
+                            </td>
+                            <td style="font-size: 0.8rem;">
+                                {{ goal.deadline|date:"M d, Y" }}
+                                {% if goal.deadline_passed and goal.status != 'complete' %}
+                                    <span style="color: #ef4444; font-size: 0.65rem;"> ⚠️ Overdue</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if goal.status == 'complete' %}
+                                    <span class="badge-status badge-complete">✅ Completed</span>
+                                {% else %}
+                                    <span class="badge-status badge-inprogress">🔄 In Progress</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-group">
+                                    <a href="?edit_id={{ goal.id }}" class="btn-sm btn-edit">✏️ Edit</a>
+                                    {% if goal.status != 'complete' %}
+                                        <a href="{% url 'savings_deposit' goal.id %}" class="btn-sm btn-deposit">💰 Add Savings</a>
+                                    {% endif %}
+                                    <form method="post" action="{% url 'savings_delete' goal.id %}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Delete goal "{{ goal.name }}"? This action cannot be undone.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-sm btn-delete">🗑️ Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-table-msg">
+                <div style="font-size: 48px; margin-bottom: 12px;">🎯</div>
+                <p>No savings goals yet.</p>
+                <p style="font-size: 0.85rem;">Create your first goal above and start saving for something meaningful!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- deposit to goal quick info -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 32px;">
+        <div style="background: rgba(255,255,255,0.85); border-radius: 24px; padding: 20px;">
+            <h3 style="color: #4f46e5;">💡 Smart Saving Tip</h3>
+            <p style="font-size: 0.8rem;">Automate a percentage of your income to savings goals each month. Even small amounts add up over time!</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.85); border-radius: 24px; padding: 20px;">
+            <h3 style="color: #4f46e5;">📈 How it works</h3>
+            <p style="font-size: 0.8rem;">When you add a transaction with type 'saving' and link it to this goal, your current amount increases automatically.</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.85); border-radius: 24px; padding: 20px;">
+            <h3 style="color: #4f46e5;">🎯 Stay motivated</h3>
+            <p style="font-size: 0.8rem;">Track progress visually and celebrate each milestone. You can have multiple goals running simultaneously!</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 Smart Wallet — Reach your financial dreams, one goal at a time ✨</p>
+</footer>
+
+</body>
+</html>
