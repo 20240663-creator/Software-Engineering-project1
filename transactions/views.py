@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from . import models as trans_models
 from user import models as user_models
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -152,6 +153,7 @@ def view_categories(request):
     categories = trans_models.Category.objects.filter(wallet=user.wallet)
     context = {'cat' : categories}
     context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
+    wallet = user.wallet
 
 
     if request.method == 'POST':
@@ -166,6 +168,12 @@ def view_categories(request):
                 name=name,
             )
             context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
+            context['with_budgets'] = trans_models.Budget.objects.filter(
+                wallet=wallet,
+            ).aggregate(total=Count('id'))['total'] or 0
+            context['cat_transactions'] = trans_models.Transaction.objects.filter(
+                wallet=wallet,
+                type='expense').aggregate(total=Count('id'))['total'] or 0
             return render(request,'categories.html',context)
         
         elif 'delete_category' in request.POST:
@@ -173,9 +181,20 @@ def view_categories(request):
                 id=request.POST.get('category_id')
             ).delete()
             context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
-            context['total_categories'] = trans_models.Category.objects.filter(wallet=request.user.wallet).count()
-
+            context['with_budgets'] = trans_models.Budget.objects.filter(
+                wallet=wallet,
+            ).aggregate(total=Count('id'))['total'] or 0
+            context['cat_transactions'] = trans_models.Transaction.objects.filter(
+                wallet=wallet,
+                type='expense').aggregate(total=Count('id'))['total'] or 0
             return render(request,'categories.html',context)
+        
+    context['with_budgets'] = trans_models.Budget.objects.filter(
+            wallet=wallet,
+        ).aggregate(total=Count('id'))['total'] or 0
+    context['cat_transactions'] = trans_models.Transaction.objects.filter(
+            wallet=wallet,
+            type='expense').aggregate(total=Count('id'))['total'] or 0
 
     return render(request,'categories.html',context)
 
@@ -240,15 +259,23 @@ def view_budget(request):
             # UPDATE
             if budget_id:
                 budget = trans_models.Budget.objects.get(id=budget_id, wallet=wallet)
+
                 budget.category = category_obj
-                budget.amount = amount
+                budget.amount = Decimal(amount)
                 budget.start_at = start_at
                 budget.end_at = end_at
-                budget.save()
 
+                budget.remaining = Decimal(budget.amount) - Decimal(budget.spended)
+
+                if budget.amount > 0:
+                    budget.percentage = (Decimal(budget.spended) / Decimal(budget.amount)) * 100
+                else:
+                    budget.percentage = 0
+
+                budget.save()
             # CREATE
             else:
-                if trans_models.Budget.objects.filter(wallet=wallet, category=category_obj).exists():
+                if trans_models.Budget.objects.filter(wallet=wallet, category=category_obj, status='in_progress').exists():
                     context['message'] = 'Budget already exists for this category'
                     return render(request, 'budget.html', context)
 
@@ -291,7 +318,7 @@ def view_add_transaction(request):
     active_bugets = trans_models.Budget.objects.filter(wallet=user.wallet,status='active')
 
     context = {'active_budgets' : active_bugets}
-    context['active_savings_goals'] = trans_models.SavingGoals.objects.filter(wallet=user.wallet)
+    context['active_savings_goals'] = trans_models.SavingGoals.objects.filter(wallet=user.wallet,status='in_progress')
     
     
     if request.method == 'POST':
@@ -356,7 +383,7 @@ def view_saving_goals(request):
     user = request.user
     wallet = user.wallet
 
-    savings_goals = trans_models.SavingGoals.objects.filter(wallet=wallet)
+    savings_goals = trans_models.SavingGoals.objects.filter(wallet=wallet).order_by('-id')
 
     context = {
         'savings_goals': savings_goals,
@@ -385,16 +412,25 @@ def view_saving_goals(request):
 
         # UPDATE
         if goal_id:
-            goal = trans_models.SavingGoals.objects.get(id=goal_id, wallet=wallet)
+            goal = get_object_or_404(
+                trans_models.SavingGoals,
+                id=goal_id,
+                wallet=wallet,
+                status='in_progress'
+            )
+
             goal.name = goal_name
-            goal.target_amount = target_amount
+            goal.target_amount = Decimal(target_amount)
             goal.deadline = deadline
-            goal.status = status
+
+            if status == 'in_progress':
+                goal.status = 'in_progress'
+
             goal.save()
 
         # CREATE
         else:
-            if trans_models.SavingGoals.objects.filter(wallet=wallet, name=goal_name).exists():
+            if trans_models.SavingGoals.objects.filter(wallet=wallet, name=goal_name, status='in_progress').exists():
                 return render(request, 'saving-goals.html', context)
 
             trans_models.SavingGoals.objects.create(
@@ -417,6 +453,9 @@ def saving_delete(request, id):
     wallet = user.wallet
 
     goal = get_object_or_404(trans_models.SavingGoals, id=id, wallet=wallet)
+    wallet.total_balance += goal.current_amount
+    wallet.total_expense -= goal.current_amount
+    wallet.save()
     goal.delete()
 
     return redirect('saving_goals')
