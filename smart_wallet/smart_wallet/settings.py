@@ -1,13 +1,8 @@
-"""
-Django settings for smart_wallet project.
-"""
-
-from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-s6n27=0+o=*4k$&&tmxxm@9mphtl%=)d_!fx4wkpc0#3$=bat9'
+SECRET_KEY = 'django-insecure-)&5#4$$5h4tun9(7%tvr@q_&mz^bm*@55noezp#$uw_!%x@pnl'
 
 DEBUG = True
 
@@ -20,18 +15,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
-    'drf_yasg',
-    'djoser',
     'user',
     'transactions',
-    'Notifications',        # US #11
-    'advisor_chatbot',              # BONUS — AI Financial Advisor
+    'notifications',   # US #11 — Notifications Center
+    'advisor',         # BONUS  — AI Financial Advisor
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -41,15 +31,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-
 ROOT_URLCONF = 'smart_wallet.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True, 
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -82,43 +70,12 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 AUTH_USER_MODEL = 'user.WalletUser'
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-}
-
-SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=1)
-
-}
-
-DJOSER = {
-    'SERIALIZERS': {
-        'user_create':  'user.serializer.UserCreateSerializer',
-        'user':         'user.serializer.UserCreateSerializer',
-        'current_user': 'user.serializer.UserCreateSerializer',
-    },
-}
-
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
-    }
-}
-
-# ── Bonus Feature: AI Advisor ─────────────────────────────────────────────────
-# Set your Anthropic API key as an environment variable:
+# ── AI Advisor ────────────────────────────────────────────────────────────────
+# Set your key as an environment variable — never hardcode it:
 #   export ANTHROPIC_API_KEY="sk-ant-..."
-# Never hardcode it here.
-ANTHROPIC_API_KEY = ''   # fallback — always prefer the env variable
+import os
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")

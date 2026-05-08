@@ -16,31 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Smart Wallet API",
-        default_version='v1',
-        description="Personal Budgeting API — Smart Wallet",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+from user import views
 
 urlpatterns = [
     path('admin/',         admin.site.urls),
     path('user/',          include('user.urls')),
-    path('transactions/',  include('transactions.urls')),
-    path('notifications/', include('Notifications.urls')),   # US #11
-    path('advisor/',       include('advisor_chatbot.urls')),          # BONUS
-    path('auth/',          include('djoser.urls')),
-    path('auth/',          include('djoser.urls.jwt')),
-]
-
-urlpatterns += [
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
-    path('redoc/',   schema_view.with_ui('redoc',   cache_timeout=0)),
+    path('',               views.view_intro,              name='intro_page'),
+    path('transaction/',   include('transactions.url')),
+    path('notifications/', include('notifications.urls')), # US #11
+    path('advisor/',       include('advisor.urls')),        # BONUS
 ]
