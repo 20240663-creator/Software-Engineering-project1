@@ -7,6 +7,7 @@ from transactions import models as transactions_models
 from django.db.models import Q 
 from django.db.models.aggregates import Sum
 from . import models
+from Latest_Version.Notifications_v2 import models as notification_models
 
 
 User = get_user_model()
@@ -194,6 +195,12 @@ def view_deposit(request):
             fee=0,
             description=request.POST.get('description', ''),
             type='income',
+        )
+
+        notification_models.Notification.objects.create(
+            user=user,
+            type='DEPOSIT',
+            message=f"💰 You received a deposit {new_amount}."
         )
         context['success'] = 'Deposit successful!'
         return render(request, 'deposit.html', context)

@@ -6,6 +6,7 @@ from django.db.models.aggregates import Sum, Count
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from . import models as trans_models
+from Latest_Version.Notifications_v2 import models as notification_models
 from user import models as user_models
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -134,6 +135,16 @@ def view_send(request):
             fee=fee,
         )
 
+        notification_models.Notification.objects.create(
+            user=user_models.WalletUser.objects.get(email=rec_email),
+            type='SEND_MONEY',
+            message=f"{user.first_name} sent you {amount}"
+        )
+        notification_models.Notification.objects.create(
+                user=user,
+                type='GOAL_COMPLETE',
+                message=f"you sent to {rec_name} {amount}"
+            )
         context['success'] = 'Transfer completed successfully.'
         context['wallet'] = wallet
         return render(request, 'send_money.html', context)
@@ -215,7 +226,10 @@ def view_budget(request):
             total=Count('id')
         )['total'] or 0
     
-    percentage = total_percantage / num_of_budgets or 0
+    try:
+        percentage = total_percantage / num_of_budgets or 0
+    except:
+        percentage = 0
 
     total_spent = budgets.aggregate(
             total=Sum('spended')
@@ -326,7 +340,7 @@ def view_add_transaction(request):
         type = request.POST.get('transaction_type')
 
         if amount > user.wallet.total_balance:
-            return render('add_transaction',{'message' : 'No enough money'})
+            return render(request,'add_transaction',{'message' : 'No enough money'})
         
         if type == 'expense':
             budget_id = request.POST.get('budget_id')
@@ -346,6 +360,20 @@ def view_add_transaction(request):
             user.wallet.total_expense += amount
             user.wallet.save()
             budget.save()
+            
+            if budget.percentage >= 80 and budget.percentage <= 100:
+                notification_models.Notification.objects.create(
+                    user=user,
+                    type='BUDGET_ALERT',
+                    message=f"🚨 You’ve reached {budget.percentage}% of your budget. Review your spending.",
+                )
+            
+            if budget.percentage > 100:
+                notification_models.Notification.objects.create(
+                    user=user,
+                    type='BUDGET_EXCEEDED',
+                    message=f"🚨 You’ve reached {budget.percentage}% of your budget {budget.category.name}. Review your spending.",
+                )
 
             return redirect('add_transaction')
         
@@ -369,6 +397,12 @@ def view_add_transaction(request):
             saving.percentage = (saving.current_amount / saving.target_amount) * 100
             if saving.current_amount == saving.target_amount:
                 saving.status = 'complete'
+                notification_models.Notification.objects.create(
+                    user=user,
+                    type='GOAL_COMPLETE',
+                    message = "🎉 Congratulations! You’ve completed your saving goal."
+                )
+
             saving.save()
             user.wallet.total_balance -= amount
             user.wallet.total_expense += amount

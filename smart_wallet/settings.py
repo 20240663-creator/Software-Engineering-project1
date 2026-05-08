@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'transactions',
+    'Latest_Version.Notifications_v2',   # US #11 — Notifications Center
+    #'advisor',         # BONUS  — AI Financial Advisor
 ]
 
 MIDDLEWARE = [
