@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from transactions import models as transactions_models
 from django.db.models import Q 
+from django.db.models.aggregates import Sum
 from . import models
 
 
@@ -44,10 +45,12 @@ def view_home(request):
     user.saving_goals = Decimal('0')
 
     transaction = transactions_models.Transaction.objects.filter(Q (wallet=wallet) | Q(reciever=wallet)).order_by('-date')[:3]
+    saving_gaols = transactions_models.SavingGoals.objects.filter(wallet=wallet).aggregate(total_saving=Sum('target_amount'))['total_saving'] or 0
     context = {
         'user': user,
         'wallet': wallet,
         'transaction': transaction,
+        'saving_goals': saving_gaols,
     }
     return render(request, 'index.html', context)
 

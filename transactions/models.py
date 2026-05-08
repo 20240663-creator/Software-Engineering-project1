@@ -52,12 +52,17 @@ class Transaction(models.Model):
 
 class Budget(models.Model):
     wallet = models.ForeignKey('user.Wallet', on_delete=models.CASCADE, related_name='budgets')
-
+    status_choices=[
+        ('active','Active'),
+        ('expired','Expired'),
+        ('completed','Completed')
+    ]
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
         related_name='budgets'
     )
+    status=models.CharField(max_length=255,choices=status_choices,default='active')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     spended = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     start_at = models.DateField()
@@ -72,7 +77,8 @@ class Budget(models.Model):
 class SavingGoals(models.Model):
     choices = [
         ('in_progress','In_progress'),
-        ('complete','Complete')
+        ('complete','Complete'),
+        ('failed','Failed')
     ]
     wallet = models.ForeignKey('user.Wallet', on_delete=models.CASCADE, related_name='saving_goals')
     name = models.CharField(max_length=255)
@@ -80,6 +86,8 @@ class SavingGoals(models.Model):
     current_amount = models.DecimalField(max_digits=10,decimal_places=2,default=0)
     deadline = models.DateField()
     status = models.CharField(max_length=255,choices=choices, default='in_progress')
+    remaining = models.DecimalField(max_digits=12,decimal_places=2,default=0)
+    progress = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.name}"

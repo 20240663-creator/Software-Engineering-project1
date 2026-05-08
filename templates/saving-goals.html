@@ -477,16 +477,6 @@
                 </div>
 
                 <div class="form-field">
-                    <label>Current Amount (Optional)</label>
-                    <div class="amount-wrapper">
-                        <span>$</span>
-                        <input type="number" name="current_amount" step="0.01" min="0" placeholder="0.00"
-                               value="{% if editing_goal %}{{ editing_goal.current_amount }}{% endif %}">
-                    </div>
-                    <small style="color: #6c757d;">Initial money already saved toward this goal</small>
-                </div>
-
-                <div class="form-field">
                     <label>Deadline <span class="required">*</span></label>
                     <input type="date" name="deadline" required
                            value="{% if editing_goal %}{{ editing_goal.deadline|date:'Y-m-d' }}{% endif %}">
@@ -508,7 +498,7 @@
                     {% if editing_goal %}💾 Update Goal{% else %}✅ Create Goal{% endif %}
                 </button>
                 {% if editing_goal %}
-                    <a href="{% url 'savings_manage' %}" class="btn-savings btn-secondary">🗑️ Cancel Edit</a>
+                    <a href="{% url 'saving_goals' %}" class="btn-savings btn-secondary">🗑️ Cancel Edit</a>
                 {% else %}
                     <button type="reset" class="btn-savings btn-secondary">⟳ Clear Form</button>
                 {% endif %}
@@ -544,14 +534,18 @@
                             <td>${{ goal.target_amount|floatformat:2 }}</td>
                             <td style="color: #059669; font-weight: 500;">${{ goal.current_amount|floatformat:2 }}</td>
                             <td class="{% if remaining < 0 %}negative{% endif %}">
-                                ${{ remaining|floatformat:2 }}
+                                ${{ goal.remaining|floatformat:2 }}
                             </td>
                             <td style="min-width: 150px;">
                                 <div class="progress-bg">
                                     <div class="progress-fill {% if goal.status == 'complete' %}completed{% endif %}" 
-                                         style="width: {% if percent > 1 %}100{% else %}{{ percent|floatformat:2|default:'0' }}{% endif %}%;"></div>
+                                        style="width: {% if goal.percent > 100 %}100{% else %}{{ goal.percentage|floatformat:2 }}{% endif %}%;">
+                                    </div>
                                 </div>
-                                <span style="font-size: 0.7rem;">{{ percent_display|floatformat:0 }}% completed</span>
+
+                                <span style="font-size: 0.7rem;">
+                                    {{ goal.percentage|floatformat:0 }}% completed
+                                </span>
                             </td>
                             <td style="font-size: 0.8rem;">
                                 {{ goal.deadline|date:"M d, Y" }}
@@ -569,12 +563,11 @@
                             <td>
                                 <div class="action-group">
                                     <a href="?edit_id={{ goal.id }}" class="btn-sm btn-edit">✏️ Edit</a>
-                                    {% if goal.status != 'complete' %}
-                                        <a href="{% url 'savings_deposit' goal.id %}" class="btn-sm btn-deposit">💰 Add Savings</a>
-                                    {% endif %}
-                                    <form method="post" action="{% url 'savings_delete' goal.id %}" 
-                                          style="display: inline;" 
-                                          onsubmit="return confirm('Delete goal "{{ goal.name }}"? This action cannot be undone.');">
+                                    
+                                    <form method="post"
+                                        action="{% url 'saving_goal_delete' goal.id %}"
+                                        style="display: inline;"
+                                        onsubmit="return confirm('Delete goal {{ goal.name }}?');">
                                         {% csrf_token %}
                                         <button type="submit" class="btn-sm btn-delete">🗑️ Delete</button>
                                     </form>

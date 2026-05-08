@@ -390,9 +390,9 @@
                 <div class="budget-stat-sub">Active budgets this period</div>
             </div>
             <div class="budget-stat-card">
-                <div class="budget-stat-label">Total Allocated</div>
-                <div class="budget-stat-value">${{ total_allocated|floatformat:2|default:"0.00" }}</div>
-                <div class="budget-stat-sub">Sum of all budget amounts</div>
+                <div class="budget-stat-label">Total Percentage</div>
+                <div class="budget-stat-value">{{ total_percentage|floatformat:0 }}%</div>
+                <div class="budget-stat-sub">Progress toward allocation goals</div>
             </div>
             <div class="budget-stat-card">
                 <div class="budget-stat-label">Total Spent</div>

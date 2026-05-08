@@ -1,12 +1,13 @@
 from decimal import Decimal
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.db.models import Q, Sum
+from django.db.models import Q
+from django.db.models.aggregates import Sum, Count
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from . import models as trans_models
 from user import models as user_models
-
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -187,19 +188,30 @@ def view_budget(request):
     categories = trans_models.Category.objects.filter(wallet=wallet)
     budgets = trans_models.Budget.objects.filter(wallet=wallet)
 
-    total_spent = budgets.aggregate(total=Sum('spended'))['total'] or 0
-    total_remaining = budgets.aggregate(total=Sum('remaining'))['total'] or 0
+    total_percantage = budgets.aggregate(
+            total=Sum('percentage')
+        )['total'] or 0
+    
+    num_of_budgets = budgets.aggregate(
+            total=Count('id')
+        )['total'] or 0
+    
+    percentage = total_percantage / num_of_budgets or 0
 
-    for budget in budgets:
-        budget.spent = budget.spended or 0
-        budget.remaining = budget.amount - budget.spent
+    total_spent = budgets.aggregate(
+            total=Sum('spended')
+        )['total'] or 0
 
+    total_remaining = budgets.aggregate(
+            total=Sum('remaining')
+        )['total'] or 0
     context = {
         'categories': categories,
         'budgets': budgets,
         'editing_budget': None,
         'total_spent':total_spent,
-        'total_remaining':total_remaining
+        'total_remaining':total_remaining,
+        'total_percentage' : percentage
     }
 
     # ================= EDIT MODE (GET) =================
@@ -267,16 +279,146 @@ def delete_budget(request, id):
 
 @login_required
 def view_add_transaction(request):
+    today = timezone.now().date()
+    user=request.user
+    active_bugets = trans_models.Budget.objects.filter(wallet=user.wallet,status='active')
+    
+    for budget in active_bugets:
+        if budget.end_at < today:
+            budget.status='expired'
+            budget.save()
+    
+    active_bugets = trans_models.Budget.objects.filter(wallet=user.wallet,status='active')
 
+    context = {'active_budgets' : active_bugets}
+    context['active_savings_goals'] = trans_models.SavingGoals.objects.filter(wallet=user.wallet)
+    
+    
     if request.method == 'POST':
-        category = request.POST.get
+        amount = Decimal(request.POST.get('amount'))
+        type = request.POST.get('transaction_type')
 
-    return render(request,'add_transaction.html')
+        if amount > user.wallet.total_balance:
+            return render('add_transaction',{'message' : 'No enough money'})
+        
+        if type == 'expense':
+            budget_id = request.POST.get('budget_id')
+            budget=trans_models.Budget.objects.get(id=budget_id)
+
+            trans_models.Transaction.objects.create(
+                wallet=user.wallet,
+                amount=amount,
+                description=request.POST.get('description'),
+                budget=budget,
+                type='expense'
+            )
+            budget.spended += amount
+            budget.remaining -= amount
+            budget.percentage = int((budget.spended / budget.amount) * 100)
+            user.wallet.total_balance -= amount
+            user.wallet.total_expense += amount
+            user.wallet.save()
+            budget.save()
+
+            return redirect('add_transaction')
+        
+        elif type == 'saving':
+            savings_id = request.POST.get('savings_goal_id')
+            saving = trans_models.SavingGoals.objects.get(id=savings_id,status='in_progress')
+
+            if amount + saving.current_amount > saving.target_amount:
+                return render(request,'add_transaction.html',{'message' : 'Exceed the target of this goal'})
+
+            trans_models.Transaction.objects.create(
+                wallet=user.wallet,
+                amount=amount,
+                description=request.POST.get('description'),
+                saving_goals=saving,
+                type='expense'
+
+            )
+            saving.current_amount += amount
+            saving.remaining -= amount
+            saving.percentage = (saving.current_amount / saving.target_amount) * 100
+            if saving.current_amount == saving.target_amount:
+                saving.status = 'complete'
+            saving.save()
+            user.wallet.total_balance -= amount
+            user.wallet.total_expense += amount
+            user.wallet.save()
+            return redirect('add_transaction')
+
+    return render(request,'add_transaction.html',context)
 
 
 @login_required
 def view_saving_goals(request):
+    user = request.user
+    wallet = user.wallet
 
-    
+    savings_goals = trans_models.SavingGoals.objects.filter(wallet=wallet)
 
-    return render(request,'saving-goals.html')
+    context = {
+        'savings_goals': savings_goals,
+        'editing_goal': None
+    }
+
+    # stats
+    context['active_goals_count'] = savings_goals.filter(status='in_progress').aggregate(total=Count('id'))['total'] or 0
+    context['completed_goals_count'] = savings_goals.filter(status='complete').aggregate(total=Count('id'))['total'] or 0
+    context['total_target_amount'] = savings_goals.filter(status='in_progress').aggregate(total=Sum('target_amount'))['total'] or 0
+    context['total_saved_amount'] = savings_goals.filter(status='in_progress').aggregate(total=Sum('current_amount'))['total'] or 0
+
+    # ================= EDIT MODE (GET) =================
+    edit_id = request.GET.get('edit_id')
+    if edit_id:
+        context['editing_goal'] = trans_models.SavingGoals.objects.get(id=edit_id, wallet=wallet)
+
+    # ================= POST =================
+    if request.method == 'POST':
+
+        goal_id = request.POST.get('goal_id')
+        goal_name = request.POST.get('name')
+        target_amount = request.POST.get('target_amount')
+        deadline = request.POST.get('deadline')
+        status = request.POST.get('status', 'in_progress')
+
+        # UPDATE
+        if goal_id:
+            goal = trans_models.SavingGoals.objects.get(id=goal_id, wallet=wallet)
+            goal.name = goal_name
+            goal.target_amount = target_amount
+            goal.deadline = deadline
+            goal.status = status
+            goal.save()
+
+        # CREATE
+        else:
+            if trans_models.SavingGoals.objects.filter(wallet=wallet, name=goal_name).exists():
+                return render(request, 'saving-goals.html', context)
+
+            trans_models.SavingGoals.objects.create(
+                wallet=wallet,
+                name=goal_name,
+                target_amount=target_amount,
+                deadline=deadline,
+                remaining=target_amount,
+                status='in_progress'
+            )
+
+        return redirect('saving_goals')
+
+    return render(request, 'saving-goals.html', context)
+
+
+@login_required
+def saving_delete(request, id):
+    user = request.user
+    wallet = user.wallet
+
+    goal = get_object_or_404(trans_models.SavingGoals, id=id, wallet=wallet)
+    goal.delete()
+
+    return redirect('saving_goals')
+
+

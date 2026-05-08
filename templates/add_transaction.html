@@ -394,28 +394,14 @@
                     </div>
                 </div>
 
-                <!-- Category (Optional) -->
-                <div class="form-field">
-                    <label>Category (Optional)</label>
-                    <select name="category_id">
-                        <option value="">-- No Category --</option>
-                        {% for category in user_categories %}
-                            <option value="{{ category.id }}" {% if selected_category_id == category.id|stringformat:"s" %}selected{% endif %}>
-                                {{ category.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <div class="help-text">Optional: Only needed if you want to track this against a budget.</div>
-                </div>
-
                 <!-- Budget Field (only visible for Expense type) -->
                 <div class="form-field conditional-field" id="budgetField">
-                    <label>Link to Budget (Optional)</label>
+                    <label>Link to Budget</label>
                     <select name="budget_id" id="budgetSelect">
                         <option value="">-- No Budget --</option>
                         {% for budget in active_budgets %}
                             <option value="{{ budget.id }}" {% if selected_budget_id == budget.id|stringformat:"s" %}selected{% endif %}>
-                                {{ budget.category.name }} - ${{ budget.amount|floatformat:2 }} ({{ budget.start_at|date:"M d" }} - {{ budget.end_at|date:"M d" }})
+                                {{ budget.category.name }} 
                             </option>
                         {% endfor %}
                     </select>
