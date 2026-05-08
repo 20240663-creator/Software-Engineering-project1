@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Send Money</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="budget.html">Budgets</a></li>
+                <li><a href="saving_goals.html">Goals</a></li>
+                <li><a href="advisor.html">Advisor</a></li>
+                <li><a href="transactions.html">Transactions</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <button class="logout-btn" id="logout-btn" style="background: rgba(0,0,0,0.1); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-md); cursor: pointer;">🚪 Logout</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h1>💸 Send Money</h1>
+                <p style="color: var(--gray);">Transfer funds securely to friends and family</p>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Send Money Form -->
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem;">Transfer Details</h3>
+                <form id="sendMoneyForm">
+                    <div class="form-group">
+                        <label class="form-label">Recipient Name</label>
+                        <input type="text" id="recipientName" class="form-control" placeholder="Enter recipient name" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Recipient Email</label>
+                        <input type="email" id="recipientEmail" class="form-control" placeholder="recipient@example.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--primary); font-weight: 600;">$</span>
+                            <input type="number" id="amount" class="form-control" style="padding-left: 2rem;" placeholder="0.00" step="0.01" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Purpose</label>
+                        <select id="purpose" class="form-control" required>
+                            <option value="">Select purpose</option>
+                            <option value="payment">Payment</option>
+                            <option value="reimbursement">Reimbursement</option>
+                            <option value="gift">Gift</option>
+                            <option value="loan">Loan</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Note (Optional)</label>
+                        <textarea id="description" class="form-control" rows="3" placeholder="Add a message for the recipient..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="saveRecipient" />
+                            <span style="font-size: 0.875rem;">Save this recipient for future transfers</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Send Money →</button>
+                </form>
+            </div>
+
+            <!-- Info Card -->
+            <div>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">💰 Your Balance</h3>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;" id="availableBalance">$0.00</div>
+                    <p style="color: var(--gray); font-size: 0.875rem;">Available for transfer</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">ℹ️ Transfer Information</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ Instant transfers</li>
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ No fees for Smart Wallet users</li>
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ 256-bit encryption</li>
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ 24/7 customer support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transfers -->
+        <div class="card" style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem;">🕒 Recent Transfers</h3>
+            <div id="recentTransfersList">
+                <div class="empty-state">Loading recent transfers...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+            <h2>Transfer Successful!</h2>
+            <p>Your money has been sent successfully.</p>
+            <div id="successDetails" style="background: var(--light); padding: 1rem; border-radius: var(--radius-md); margin: 1rem 0;"></div>
+            <button class="btn btn-primary" onclick="closeModal('successModal')">Done</button>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+    </footer>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/auth.js"></script>
+    <script src="../static/js/wallet.js"></script>
+    <script src="../static/js/transactions.js"></script>
+    
+    
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Deposit Money</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="budget.html">Budgets</a></li>
+                <li><a href="saving_goals.html">Goals</a></li>
+                <li><a href="advisor.html">Advisor</a></li>
+                <li><a href="transactions.html">Transactions</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <button class="logout-btn" id="logout-btn" style="background: rgba(0,0,0,0.1); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-md); cursor: pointer;">🚪 Logout</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h1>🏦 Deposit Money</h1>
+                <p style="color: var(--gray);">Add funds to your wallet securely</p>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Deposit Form -->
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem;">Deposit Details</h3>
+                <form id="depositForm">
+                    <div class="form-group">
+                        <label class="form-label">Amount to Deposit</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--primary); font-weight: 600;">$</span>
+                            <input type="number" id="amount" class="form-control" style="padding-left: 2rem;" placeholder="0.00" step="0.01" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <select id="paymentMethod" class="form-control" required>
+                            <option value="">Select payment method</option>
+                            <option value="credit_card">💳 Credit Card</option>
+                            <option value="debit_card">💳 Debit Card</option>
+                            <option value="bank_transfer">🏦 Bank Transfer</option>
+                            <option value="paypal">📧 PayPal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Card/Account Number</label>
+                        <input type="text" id="accountNumber" class="form-control" placeholder="**** **** **** 1234" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" id="cardholderName" class="form-control" placeholder="Name on card" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="month" id="expiryDate" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" id="cvv" class="form-control" placeholder="123" maxlength="4" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea id="description" class="form-control" rows="3" placeholder="Add a note..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="savePaymentMethod" />
+                            <span style="font-size: 0.875rem;">Save this payment method for future deposits</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Deposit Money →</button>
+                </form>
+            </div>
+
+            <!-- Info Card -->
+            <div>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">💰 Current Balance</h3>
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;" id="currentBalance">$0.00</div>
+                    <p style="color: var(--gray); font-size: 0.875rem;">After deposit, funds are available immediately</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">ℹ️ Deposit Information</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ Instant deposits</li>
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ No deposit fees</li>
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ Secure encryption</li>
+                        <li style="padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem;">✓ 24/7 customer support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+    </footer>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/auth.js"></script>
+    <script src="../static/js/wallet.js"></script>
+    <script src="../static/js/transactions.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            await updateWalletBalance();
+            
+            // Set default expiry date to next month
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('expiryDate').value = nextMonth.toISOString().slice(0, 7);
+        });
+        
+        // Show success message after deposit
+        const originalDepositMoney = window.depositMoney;
+        if (originalDepositMoney) {
+            window.depositMoney = async function(data) {
+                const result = await originalDepositMoney(data);
+                if (result) {
+                    showToast('Deposit successful! Funds added to your wallet.', 'success');
+                }
+                return result;
+            };
+        }
+    </script>
+</body>
+</html>

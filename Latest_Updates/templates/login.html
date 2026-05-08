@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Wallet - Sign In</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
+    
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="logo" style="font-size: 2rem; margin-bottom: 1rem">
+            💰 Smart Wallet
+          </div>
+          <h1>Welcome Back! 👋</h1>
+          <p>Please sign in to continue to your account</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label">Email Address or Username</label>
+            <input
+              type="text"
+              id="username"
+              class="form-control"
+              placeholder="Enter your email or username"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="password-field">
+              <input
+                type="password"
+                id="password"
+                class="form-control"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+              />
+              <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1.5rem;
+            "
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+              "
+            >
+              <input
+                type="checkbox"
+                id="rememberMe"
+                style="accent-color: var(--primary)"
+              />
+              <span style="font-size: 0.875rem; color: var(--gray)"
+                >Remember me</span
+              >
+            </label>
+            <a
+              href="#"
+              style="
+                font-size: 0.875rem;
+                color: var(--primary);
+                text-decoration: none;
+              "
+              >Forgot Password?</a
+            >
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            <span>Sign In</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>
+            Don't have an account?
+            <a
+              href="register.html"
+              style="
+                color: var(--primary);
+                font-weight: 600;
+                text-decoration: none;
+              "
+              >Create Account</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/auth.js"></script>
+
+    <script>
+      function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+      }
+
+      // Remember me functionality
+      if (localStorage.getItem("remembered_username")) {
+        document.getElementById("username").value = localStorage.getItem(
+          "remembered_username",
+        );
+        document.getElementById("rememberMe").checked = true;
+      }
+
+      // Add loading state to submit button
+      const form = document.getElementById("login-form");
+      const submitBtn = form.querySelector('button[type="submit"]');
+
+      form.addEventListener("submit", function (e) {
+        const rememberMe = document.getElementById("rememberMe").checked;
+        if (rememberMe) {
+          localStorage.setItem(
+            "remembered_username",
+            document.getElementById("username").value,
+          );
+        } else {
+          localStorage.removeItem("remembered_username");
+        }
+      });
+    </script>
+  </body>
+</html>

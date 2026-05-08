@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - AI Advisor</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        #advisor-body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        #advisor-header {
+            background-color: rgba(0,0,0,0.7);
+            padding: 1rem 0;
+        }
+        #advisor-nav {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #advisor-nav .logo { font-size: 24px; font-weight: bold; color: #fff; }
+        #advisor-nav .nav-links { display: flex; gap: 30px; list-style: none; }
+        #advisor-nav .nav-links a { color: #fff; text-decoration: none; }
+        #advisor-nav .nav-links a:hover { color: #667eea; }
+
+        .advisor-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+
+        .intro-card {
+            background: white; border-radius: 15px; padding: 30px;
+            margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .intro-card .ai-icon { font-size: 56px; margin-bottom: 12px; }
+        .intro-card h1 { color: #667eea; margin-bottom: 8px; }
+        .intro-card p { color: #666; font-size: 15px; }
+
+        /* Question form */
+        .ask-card {
+            background: white; border-radius: 15px; padding: 28px 30px;
+            margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .ask-card h3 { color: #667eea; margin-bottom: 16px; }
+        .ask-row { display: flex; gap: 12px; }
+        .ask-input {
+            flex: 1; padding: 14px 18px; border: 2px solid #ddd;
+            border-radius: 10px; font-size: 15px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .ask-input:focus { border-color: #667eea; }
+        .ask-btn {
+            background: #667eea; color: white; border: none;
+            border-radius: 10px; padding: 14px 28px;
+            cursor: pointer; font-size: 15px; font-weight: 600;
+            white-space: nowrap;
+        }
+        .ask-btn:hover { background: #5a6fd6; }
+        .ask-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+        .suggestions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .suggestion-chip {
+            background: #f0f0ff; color: #667eea; border: 1px solid #c5c8f5;
+            border-radius: 20px; padding: 6px 14px; font-size: 13px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .suggestion-chip:hover { background: #667eea; color: white; }
+
+        /* Error */
+        .error-msg {
+            background: #ffeaea; color: #e74c3c; border-radius: 10px;
+            padding: 14px 18px; margin-bottom: 20px; font-size: 14px;
+        }
+
+        /* Latest answer */
+        .answer-card {
+            background: white; border-radius: 15px; padding: 28px 30px;
+            margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        .answer-card .question-label { font-size: 12px; color: #999; text-transform: uppercase; margin-bottom: 6px; }
+        .answer-card .question-text  { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 18px; }
+        .answer-card .answer-label   { font-size: 12px; color: #27ae60; text-transform: uppercase; margin-bottom: 6px; }
+        .answer-card .answer-text    { font-size: 15px; color: #444; line-height: 1.7; white-space: pre-wrap; }
+
+        /* History */
+        .history-card {
+            background: white; border-radius: 15px; padding: 28px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .history-card h3 { color: #667eea; margin-bottom: 20px; }
+        .history-item {
+            border-bottom: 1px solid #f0f0f0; padding: 16px 0;
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-content { flex: 1; }
+        .history-q { font-weight: 600; color: #333; margin-bottom: 6px; font-size: 14px; }
+        .history-a { color: #666; font-size: 13px; line-height: 1.5; }
+        .history-time { font-size: 11px; color: #bbb; white-space: nowrap; }
+        .history-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        .btn-del {
+            background: #ffeaea; color: #e74c3c; border: none;
+            border-radius: 6px; padding: 5px 10px; font-size: 12px;
+            cursor: pointer; text-decoration: none;
+        }
+        .btn-del:hover { background: #e74c3c; color: white; }
+
+        .empty-history { text-align: center; padding: 30px; color: #999; }
+        .empty-history .icon { font-size: 40px; margin-bottom: 10px; }
+
+        /* Loading spinner */
+        .spinner { display: none; margin-left: 10px; }
+        .spinner-ring {
+            width: 18px; height: 18px; border: 3px solid #fff;
+            border-top-color: transparent; border-radius: 50%;
+            animation: spin 0.8s linear infinite; display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body id="advisor-body">
+
+<header id="advisor-header">
+    <nav id="advisor-nav">
+        <div class="logo">💰 Smart Wallet</div>
+        <ul class="nav-links">
+            <li><a href="{% url 'home' %}">Dashboard</a></li>
+            <li><a href="{% url 'transactions' %}">Transactions</a></li>
+            <li><a href="{% url 'view_report' %}">Reports</a></li>
+            <li><a href="{% url 'notifications' %}">🔔 Notifications</a></li>
+            <li><a href="{% url 'advisor' %}">🤖 AI Advisor</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="advisor-container">
+
+    <!-- Intro -->
+    <div class="intro-card">
+        <div class="ai-icon">🤖</div>
+        <h1>AI Financial Advisor</h1>
+        <p>Ask me anything about your finances. I'll analyze your real data and give you personalized advice.</p>
+    </div>
+
+    <!-- Error -->
+    {% if error %}
+    <div class="error-msg">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <!-- Ask form -->
+    <div class="ask-card">
+        <h3>💬 Ask a Question</h3>
+        <form method="POST" id="advisorForm">
+            {% csrf_token %}
+            <div class="ask-row">
+                <input
+                    type="text"
+                    name="message"
+                    class="ask-input"
+                    id="messageInput"
+                    placeholder="e.g. Am I overspending on food?"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="ask-btn" id="submitBtn">
+                    Ask AI <span class="spinner"><span class="spinner-ring"></span></span>
+                </button>
+            </div>
+        </form>
+        <div class="suggestions">
+            <span class="suggestion-chip" onclick="fillQuestion(this)">Am I overspending?</span>
+            <span class="suggestion-chip" onclick="fillQuestion(this)">How are my saving goals going?</span>
+            <span class="suggestion-chip" onclick="fillQuestion(this)">Which budget is at risk?</span>
+            <span class="suggestion-chip" onclick="fillQuestion(this)">Give me tips to save more money</span>
+            <span class="suggestion-chip" onclick="fillQuestion(this)">What's my financial health score?</span>
+        </div>
+    </div>
+
+    <!-- Latest answer -->
+    {% if latest %}
+    <div class="answer-card">
+        <div class="question-label">Your Question</div>
+        <div class="question-text">{{ latest.user_message }}</div>
+        <div class="answer-label">🤖 AI Advisor</div>
+        <div class="answer-text">{{ latest.ai_response }}</div>
+    </div>
+    {% endif %}
+
+    <!-- History -->
+    <div class="history-card">
+        <h3>📜 Past Conversations</h3>
+        {% if history %}
+            {% for chat in history %}
+            {% if not latest or chat.id != latest.id %}
+            <div class="history-item">
+                <div class="history-content">
+                    <div class="history-q">❓ {{ chat.user_message }}</div>
+                    <div class="history-a">{{ chat.ai_response|truncatechars:200 }}</div>
+                </div>
+                <div class="history-meta">
+                    <span class="history-time">{{ chat.created_at|date:"M d, Y H:i" }}</span>
+                    <a href="{% url 'advisor_delete' chat.id %}" class="btn-del">Delete</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="empty-history">
+                <div class="icon">💭</div>
+                <p>No past conversations yet. Ask your first question above!</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+function fillQuestion(chip) {
+    document.getElementById('messageInput').value = chip.textContent.trim();
+    document.getElementById('messageInput').focus();
+}
+
+document.getElementById('advisorForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.querySelector('.spinner').style.display = 'inline';
+    btn.childNodes[0].textContent = 'Thinking... ';
+});
+</script>
+
+</body>
+</html>
