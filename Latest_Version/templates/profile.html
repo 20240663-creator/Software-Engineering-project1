@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - My Profile</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        .info-value {
+            font-weight: 500;
+        }
+        
+        .edit-mode {
+            display: none;
+        }
+        
+        .edit-mode.active {
+            display: block;
+        }
+        
+        .view-mode.hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="budget.html">Budgets</a></li>
+                <li><a href="saving_goals.html">Goals</a></li>
+                <li><a href="advisor.html">Advisor</a></li>
+                <li><a href="transactions.html">Transactions</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <button class="logout-btn" id="logout-btn" style="background: rgba(0,0,0,0.1); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-md); cursor: pointer;">🚪 Logout</button>
+        </nav>
+    </header>
+
+    <main class="container profile-container">
+        <div class="card">
+            <div class="profile-info">
+                <div class="profile-avatar" style="margin: 0 auto;">👤</div>
+                <h2 id="profileName">John Doe</h2>
+                <p style="color: var(--gray);" id="profileEmail">john@example.com</p>
+            </div>
+
+            <!-- View Mode -->
+            <div id="viewMode">
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value" id="displayName">John Doe</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value" id="displayEmail">john@example.com</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Member Since</span>
+                    <span class="info-value" id="memberSince">January 1, 2024</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Account Status</span>
+                    <span class="info-value"><span class="badge badge-success">Active</span></span>
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="enableEditMode()">✏️ Edit Profile</button>
+                </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div id="editMode" class="edit-mode">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="editName" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="editEmail" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Password (optional)</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password" />
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="disableEditMode()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+    </footer>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/auth.js"></script>
+    
+    <script>
+        function enableEditMode() {
+            document.getElementById('viewMode').classList.add('hide');
+            document.getElementById('editMode').classList.add('active');
+            
+            // Populate edit fields
+            document.getElementById('editName').value = document.getElementById('displayName').textContent;
+            document.getElementById('editEmail').value = document.getElementById('displayEmail').textContent;
+        }
+        
+        function disableEditMode() {
+            document.getElementById('viewMode').classList.remove('hide');
+            document.getElementById('editMode').classList.remove('active');
+            document.getElementById('profileForm').reset();
+        }
+        
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword && newPassword !== confirmPassword) {
+                showToast('Passwords do not match!', 'error');
+                return;
+            }
+            
+            const updateData = {
+                username: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value
+            };
+            
+            if (newPassword) {
+                updateData.password = newPassword;
+            }
+            
+            const result = await updateUserProfile(updateData);
+            if (result) {
+                document.getElementById('displayName').textContent = result.username;
+                document.getElementById('displayEmail').textContent = result.email;
+                document.getElementById('profileName').textContent = result.username;
+                document.getElementById('profileEmail').textContent = result.email;
+                disableEditMode();
+                showToast('Profile updated successfully!', 'success');
+            }
+        });
+        
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const userData = await fetchUserProfile();
+            if (userData) {
+                document.getElementById('displayName').textContent = userData.username;
+                document.getElementById('displayEmail').textContent = userData.email;
+                document.getElementById('profileName').textContent = userData.username;
+                document.getElementById('profileEmail').textContent = userData.email;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Financial Report</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        #report-body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        #report-header {
+            background-color: rgba(0,0,0,0.7);
+            padding: 1rem 0;
+        }
+        #report-nav {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #report-nav .logo { font-size: 24px; font-weight: bold; color: #fff; }
+        #report-nav .nav-links { display: flex; gap: 30px; list-style: none; }
+        #report-nav .nav-links a { color: #fff; text-decoration: none; }
+        #report-nav .nav-links a:hover { color: #667eea; }
+
+        .report-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+
+        /* Filter bar */
+        .filter-card {
+            background: white; border-radius: 15px; padding: 25px 30px;
+            margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;
+        }
+        .filter-card h2 { width: 100%; color: #667eea; margin-bottom: 5px; }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 13px; color: #666; font-weight: 600; }
+        .filter-group input, .filter-group select {
+            padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; outline: none;
+        }
+        .filter-group input:focus, .filter-group select:focus { border-color: #667eea; }
+        .filter-btn {
+            background: #667eea; color: white; border: none; border-radius: 8px;
+            padding: 11px 28px; cursor: pointer; font-size: 14px; font-weight: 600;
+        }
+        .filter-btn:hover { background: #5a6fd6; }
+
+        /* Summary cards */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px; margin-bottom: 25px;
+        }
+        .summary-card {
+            background: white; border-radius: 15px; padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); text-align: center;
+        }
+        .summary-card .label { font-size: 13px; color: #999; text-transform: uppercase; margin-bottom: 10px; }
+        .summary-card .value { font-size: 28px; font-weight: bold; }
+        .value.green  { color: #27ae60; }
+        .value.red    { color: #e74c3c; }
+        .value.purple { color: #667eea; }
+
+        /* Charts row */
+        .charts-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 25px; margin-bottom: 25px;
+        }
+        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+        .chart-card {
+            background: white; border-radius: 15px; padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .chart-card h3 { color: #667eea; margin-bottom: 20px; font-size: 16px; }
+        .chart-wrapper { position: relative; height: 280px; }
+
+        /* Insights */
+        .insights-card {
+            background: white; border-radius: 15px; padding: 25px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 25px;
+        }
+        .insights-card h3 { color: #667eea; margin-bottom: 15px; }
+        .insight-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+        }
+        .insight-item:last-child { border-bottom: none; }
+        .insight-icon { font-size: 20px; flex-shrink: 0; }
+        .insight-text { font-size: 14px; color: #555; line-height: 1.5; }
+
+        /* Category table */
+        .table-card {
+            background: white; border-radius: 15px; padding: 25px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 25px;
+        }
+        .table-card h3 { color: #667eea; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f7ff; color: #667eea; padding: 12px 16px; text-align: left; font-size: 13px; }
+        td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #444; }
+        tr:last-child td { border-bottom: none; }
+        .progress-bar-wrap { background: #f0f0f0; border-radius: 10px; height: 8px; width: 100%; }
+        .progress-bar-fill { height: 8px; border-radius: 10px; background: #667eea; }
+
+        /* No data */
+        .no-data {
+            background: white; border-radius: 15px; padding: 60px;
+            text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .no-data .icon { font-size: 60px; margin-bottom: 20px; }
+        .no-data h2 { color: #667eea; margin-bottom: 10px; }
+        .no-data p { color: #999; }
+    </style>
+</head>
+<body id="report-body">
+
+<header id="report-header">
+    <nav id="report-nav">
+        <div class="logo">💰 Smart Wallet</div>
+        <ul class="nav-links">
+            <li><a href="{% url 'home' %}">Dashboard</a></li>
+            <li><a href="{% url 'transactions' %}">Transactions</a></li>
+            <li><a href="{% url 'view_report' %}">Reports</a></li>
+            <li><a href="{% url 'notifications' %}">🔔 Notifications</a></li>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="report-container">
+
+    <!-- Filter -->
+    <form method="GET" action="{% url 'view_report' %}">
+        <div class="filter-card">
+            <h2>📊 Financial Report</h2>
+            <div class="filter-group">
+                <label>Start Date</label>
+                <input type="date" name="start_date" value="{{ start_date }}">
+            </div>
+            <div class="filter-group">
+                <label>End Date</label>
+                <input type="date" name="end_date" value="{{ end_date }}">
+            </div>
+            <div class="filter-group">
+                <label>Group By</label>
+                <select name="group_by">
+                    <option value="month" {% if group_by == 'month' %}selected{% endif %}>Month</option>
+                    <option value="week"  {% if group_by == 'week'  %}selected{% endif %}>Week</option>
+                </select>
+            </div>
+            <button type="submit" class="filter-btn">Generate Report</button>
+        </div>
+    </form>
+
+    {% if no_data %}
+        <div class="no-data">
+            <div class="icon">📭</div>
+            <h2>No transactions found</h2>
+            <p>No transaction data available for the selected period. Try a different date range.</p>
+        </div>
+
+    {% else %}
+
+    <!-- Summary -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="label">Total Income</div>
+            <div class="value green">+{{ total_income|floatformat:2 }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Total Expenses</div>
+            <div class="value red">-{{ total_expense|floatformat:2 }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Net Balance</div>
+            <div class="value purple">{{ net_balance|floatformat:2 }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Transactions</div>
+            <div class="value purple">{{ transaction_count }}</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>🍩 Expenses by Category</h3>
+            <div class="chart-wrapper">
+                {% if expense_by_category %}
+                    <canvas id="pieChart"></canvas>
+                {% else %}
+                    <p style="color:#999;text-align:center;padding-top:80px;">No expense data for this period.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>📊 Income vs Expenses Over Time</h3>
+            <div class="chart-wrapper">
+                {% if income_vs_expense %}
+                    <canvas id="barChart"></canvas>
+                {% else %}
+                    <p style="color:#999;text-align:center;padding-top:80px;">No data to display.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Insights -->
+    {% if insights %}
+    <div class="insights-card">
+        <h3>💡 Insights</h3>
+        {% for insight in insights %}
+        <div class="insight-item">
+            <span class="insight-icon">
+                {% if 'top spending' in insight %}📌
+                {% elif 'overspend' in insight or 'exceeded' in insight %}⚠️
+                {% elif 'saved' in insight %}🎉
+                {% else %}📌{% endif %}
+            </span>
+            <span class="insight-text">{{ insight }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Category breakdown table -->
+    {% if expense_by_category %}
+    <div class="table-card">
+        <h3>📋 Expense Breakdown by Category</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Percentage</th>
+                    <th>Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in expense_by_category %}
+                <tr>
+                    <td><strong>{{ row.category }}</strong></td>
+                    <td>{{ row.total|floatformat:2 }}</td>
+                    <td>{{ row.percentage }}%</td>
+                    <td>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width:{{ row.percentage }}%"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% endif %} <!-- end no_data -->
+
+</div>
+
+<script>
+{% if expense_by_category %}
+// Pie Chart
+const pieCtx = document.getElementById('pieChart').getContext('2d');
+new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for row in expense_by_category %}'{{ row.category }}',{% endfor %}],
+        datasets: [{
+            data: [{% for row in expense_by_category %}{{ row.total }},{% endfor %}],
+            backgroundColor: [
+                '#667eea','#764ba2','#f39c12','#e74c3c',
+                '#27ae60','#3498db','#9b59b6','#1abc9c',
+                '#e67e22','#34495e'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right', labels: { font: { size: 12 } } }
+        }
+    }
+});
+{% endif %}
+
+{% if income_vs_expense %}
+// Bar Chart
+const barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for row in income_vs_expense %}'{{ row.period }}',{% endfor %}],
+        datasets: [
+            {
+                label: 'Income',
+                data: [{% for row in income_vs_expense %}{{ row.income }},{% endfor %}],
+                backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                borderRadius: 6
+            },
+            {
+                label: 'Expense',
+                data: [{% for row in income_vs_expense %}{{ row.expense }},{% endfor %}],
+                backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                borderRadius: 6
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+{% endif %}
+</script>
+
+</body>
+</html>

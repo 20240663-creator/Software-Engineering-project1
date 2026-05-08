@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Budgets</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <style>
+        
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="budget.html">Budgets</a></li>
+                <li><a href="saving_goals.html">Goals</a></li>
+                <li><a href="advisor.html">Advisor</a></li>
+                <li><a href="transactions.html">Transactions</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <button class="logout-btn" id="logout-btn" style="background: rgba(0,0,0,0.1); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-md); cursor: pointer;">🚪 Logout</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="budgets-header">
+            <div>
+                <h1>💰 Budget Management</h1>
+                <p style="color: var(--gray);">Track and manage your spending across categories</p>
+            </div>
+            <button class="add-budget-btn" onclick="openBudgetModal()">
+                <span>+</span> Create New Budget
+            </button>
+        </div>
+
+        <div id="budgetsList"></div>
+    </main>
+
+    <!-- Budget Modal -->
+    <div id="budgetModal" class="modal">
+        <div class="modal-content budget-modal">
+            <h2 style="margin-bottom: 1rem;">Create New Budget</h2>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="budgetCategory" class="form-control" required>
+                        <option value="">Select category</option>
+                        <option value="Food & Dining">🍕 Food & Dining</option>
+                        <option value="Transportation">⛽ Transportation</option>
+                        <option value="Entertainment">🎬 Entertainment</option>
+                        <option value="Shopping">🛍️ Shopping</option>
+                        <option value="Utilities">💡 Utilities</option>
+                        <option value="Healthcare">🏥 Healthcare</option>
+                        <option value="Education">🎓 Education</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Budget Amount</label>
+                    <input type="number" id="budgetAmount" class="form-control" placeholder="Enter amount" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" id="budgetStartDate" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End Date</label>
+                    <input type="date" id="budgetEndDate" class="form-control" required />
+                </div>
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeBudgetModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Budget</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+    </footer>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/auth.js"></script>
+    <script src="../static/js/budget.js"></script>
+    
+    <script>
+        function openBudgetModal() {
+            document.getElementById('budgetModal').classList.add('active');
+        }
+        
+        function closeBudgetModal() {
+            document.getElementById('budgetModal').classList.remove('active');
+            document.getElementById('budgetForm').reset();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('budgetModal');
+            if (event.target === modal) {
+                closeBudgetModal();
+            }
+        }
+    </script>
+</body>
+</html>

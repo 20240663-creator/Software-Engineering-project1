@@ -401,7 +401,6 @@
             <li><a href="{% url 'transactions' %}" style="color: white;">Transactions</a></li>
             <li><a href="{% url 'send_money' %}" style="color: white;">Send</a></li>
             <li><a href="{% url 'request_money' %}" style="color: white;">Request</a></li>
-            <li><a href="{% url 'settings' %}" style="color: white;">Settings</a></li>
             <li><a href="{% url 'profile' %}" style="color: white;">Profile</a></li>
             <li><a href="{% url 'logout' %}" style="color: white;">Logout</a></li>
         </ul>
@@ -439,12 +438,12 @@
         <div class="stat-savings-card">
             <div class="stat-label">Total Target</div>
             <div class="stat-number">${{ total_target_amount|floatformat:2|default:"0.00" }}</div>
-            <div class="stat-sub">All goals combined</div>
+            <div class="stat-sub">All active goals combined</div>
         </div>
         <div class="stat-savings-card">
             <div class="stat-label">Total Saved</div>
             <div class="stat-number">${{ total_saved_amount|floatformat:2|default:"0.00" }}</div>
-            <div class="stat-sub">Towards your dreams</div>
+            <div class="stat-sub">For only active goals</div>
         </div>
     </div>
 
@@ -539,7 +538,7 @@
                             <td style="min-width: 150px;">
                                 <div class="progress-bg">
                                     <div class="progress-fill {% if goal.status == 'complete' %}completed{% endif %}" 
-                                        style="width: {% if goal.percent > 100 %}100{% else %}{{ goal.percentage|floatformat:2 }}{% endif %}%;">
+                                        style="width: {% if goal.percentage > 100 %}100{% else %}{{ goal.percentage|floatformat:2 }}{% endif %}%;">
                                     </div>
                                 </div>
 

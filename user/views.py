@@ -44,8 +44,8 @@ def view_home(request):
     user.total_expense = wallet.total_expense
     user.saving_goals = Decimal('0')
 
-    transaction = transactions_models.Transaction.objects.filter(Q (wallet=wallet) | Q(reciever=wallet)).order_by('-date')[:3]
-    saving_gaols = transactions_models.SavingGoals.objects.filter(wallet=wallet).aggregate(total_saving=Sum('target_amount'))['total_saving'] or 0
+    transaction = transactions_models.Transaction.objects.filter(Q (wallet=wallet) | Q(reciever=wallet)).order_by('-date')
+    saving_gaols = transactions_models.SavingGoals.objects.filter(wallet=wallet).aggregate(total_saving=Sum('current_amount'))['total_saving'] or 0
     context = {
         'user': user,
         'wallet': wallet,
@@ -129,9 +129,6 @@ def view_intro(request):
     return render(request, 'intro.html')
 
 
-def view_settings(request):
-    return render(request, 'settings.html')
-
 @login_required
 def view_report(request):
     """Display transaction reports for the user."""
@@ -149,7 +146,7 @@ def view_report(request):
     user.total_income = wallet.total_income
     user.total_expense = wallet.total_expense
     
-    transaction = transactions_models.Transaction.objects.filter(wallet=wallet).order_by('-date')[:3]
+    transaction = transactions_models.Transaction.objects.filter(wallet=wallet).order_by('-date')
     
     return render(request, 'view_report.html', {
         'user': user,

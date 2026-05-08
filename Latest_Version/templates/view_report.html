@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Wallet - Financial Reports</title>
+    <link rel="stylesheet" href="../static/css/style.css" />
+    <style>
+        
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="budget.html">Budgets</a></li>
+                <li><a href="saving_goals.html">Goals</a></li>
+                <li><a href="advisor.html">Advisor</a></li>
+                <li><a href="transactions.html">Transactions</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <button class="logout-btn" id="logout-btn" style="background: rgba(0,0,0,0.1); border: none; padding: 0.5rem 1rem; border-radius: var(--radius-md); cursor: pointer;">🚪 Logout</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div style="margin-bottom: 2rem;">
+            <h1>📊 Financial Reports</h1>
+            <p style="color: var(--gray);">Analyze your spending patterns and financial health</p>
+        </div>
+
+        <!-- Date Range Filters -->
+        <div class="report-filters">
+            <div class="date-range-buttons">
+                <button class="date-btn" data-range="week">This Week</button>
+                <button class="date-btn active" data-range="month">This Month</button>
+                <button class="date-btn" data-range="quarter">Last 3 Months</button>
+                <button class="date-btn" data-range="year">This Year</button>
+                <button class="date-btn" data-range="all">All Time</button>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" id="startDate" class="form-control" />
+                </div>
+                <div class="filter-group">
+                    <label class="form-label">End Date</label>
+                    <input type="date" id="endDate" class="form-control" />
+                </div>
+                <div class="filter-group">
+                    <button id="applyFiltersBtn" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="stats-grid" id="summaryCards">
+            <div class="stat-card">
+                <div class="stat-label">Total Income</div>
+                <div class="stat-value" id="totalIncome">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value" id="totalExpenses">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Net Savings</div>
+                <div class="stat-value" id="netSavings">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Transactions</div>
+                <div class="stat-value" id="transactionCount">0</div>
+            </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">📂 Spending by Category</h3>
+            <div id="categoryBreakdown" class="category-breakdown">
+                <div class="empty-state">Loading category data...</div>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <h3>📋 Transaction History</h3>
+                <div class="export-buttons">
+                    <button class="export-btn" onclick="exportToCSV()">📄 Export CSV</button>
+                    <button class="export-btn" onclick="printReport()">🖨️ Print</button>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">Select date range to view transactions</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+    </footer>
+
+    <script src="../static/js/config.js"></script>
+    <script src="../static/js/auth.js"></script>
+    <script src="../static/js/"></script>
+    
+    
+</body>
+</html>

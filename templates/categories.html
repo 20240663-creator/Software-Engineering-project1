@@ -326,7 +326,6 @@
                 <li><a href="{% url 'transactions' %}">Transactions</a></li>
                 <li><a href="{% url 'send_money' %}">Send Money</a></li>
                 <li><a href="{% url 'request_money' %}">Request Money</a></li>
-                <li><a href="{% url 'settings' %}">Settings</a></li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
@@ -347,11 +346,11 @@
                 <div class="cat-stat-label">Total Categories</div>
             </div>
             <div class="cat-stat-box">
-                <div class="cat-stat-value" id="budgetCategoriesCount">0</div>
+                <div class="cat-stat-value" id="budgetCategoriesCount">{{with_budgets}}</div>
                 <div class="cat-stat-label">With Budgets</div>
             </div>
             <div class="cat-stat-box">
-                <div class="cat-stat-value" id="transactionsLinkedCount">0</div>
+                <div class="cat-stat-value" id="transactionsLinkedCount">{{cat_transactions}}</div>
                 <div class="cat-stat-label">Transactions Linked</div>
             </div>
         </div>

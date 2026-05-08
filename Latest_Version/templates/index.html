@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Smart Wallet Dashboard - Manage your finances, track expenses, set savings goals, and get AI-powered financial advice."
+    />
+    <meta
+      name="keywords"
+      content="smart wallet, personal finance, budget tracking, savings goals, financial advisor, money management"
+    />
+    <meta name="author" content="Smart Wallet Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#6366f1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://127.0.0.1:8000;"
+    />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta
+      http-equiv="Referrer-Policy"
+      content="strict-origin-when-cross-origin"
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://smartwallet.example.com/" />
+    <meta
+      property="og:title"
+      content="Smart Wallet - Personal Finance Dashboard"
+    />
+    <meta
+      property="og:description"
+      content="Manage your finances with AI-powered insights and smart budgeting tools."
+    />
+    <meta
+      property="og:image"
+      content="https://smartwallet.example.com/images/og-image.jpg"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://smartwallet.example.com/" />
+    <meta
+      property="twitter:title"
+      content="Smart Wallet - Personal Finance Dashboard"
+    />
+    <meta
+      property="twitter:description"
+      content="Manage your finances with AI-powered insights and smart budgeting tools."
+    />
+    <meta
+      property="twitter:image"
+      content="https://smartwallet.example.com/images/og-image.jpg"
+    />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://smartwallet.example.com/" />
+
+    <!-- Preconnect and DNS Prefetch -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="//127.0.0.1:8000" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../static/images/favicon.ico" />
+    <link rel="apple-touch-icon" href="../static/images/apple-touch-icon.png" />
+
+    <title>Smart Wallet Dashboard - Personal Finance Management</title>
+
+    
+
+    <!-- Non-critical CSS with media print trick -->
+    <link rel="stylesheet" href="../static/css/style.css" media="print" onload="this.media='all'" />
+    <link
+      rel="stylesheet"
+      href="../static/css/style.min.css"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link rel="stylesheet" href="../static/css/style.min.css"
+    /></noscript>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Smart Wallet",
+        "description": "Personal finance management application with AI-powered financial advice",
+        "url": "https://smartwallet.example.com",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Smart Wallet Team"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Skip to main content for accessibility -->
+    <a
+      href="#main-content"
+      class="skip-link"
+      style="
+        position: absolute;
+        top: -40px;
+        left: 6px;
+        background: var(--primary);
+        color: white;
+        padding: 8px;
+        text-decoration: none;
+        border-radius: 4px;
+        z-index: 1000;
+      "
+      >Skip to main content</a
+    >
+
+    <header class="main-header" role="banner">
+      <nav class="nav-container" role="navigation" aria-label="Main navigation">
+        <div class="logo" role="img" aria-label="Smart Wallet Logo">
+          💰 Smart Wallet
+        </div>
+        <ul class="nav-links">
+          <li><a href="index.html" aria-current="page">Dashboard</a></li>
+          <li><a href="budget.html">Budgets</a></li>
+          <li><a href="saving_goals.html">Goals</a></li>
+          <li><a href="advisor.html">Advisor</a></li>
+          <li><a href="transactions.html">Transactions</a></li>
+          <li><a href="profile.html">Profile</a></li>
+        </ul>
+        <button
+          class="logout-btn"
+          id="logout-btn"
+          aria-label="Logout from your account"
+        >
+        Logout
+        </button>
+      </nav>
+    </header>
+
+    <main class="container" id="main-content" role="main">
+      <!-- Welcome Banner -->
+      <section class="welcome-banner" aria-labelledby="welcomeMessage">
+        <h1 id="welcomeMessage">Welcome back! 👋</h1>
+        <p>Here's your financial overview for today</p>
+      </section>
+
+      <!-- Stats Grid -->
+      <section class="stats-grid" aria-label="Financial Statistics">
+        <div class="stat-card">
+          <div class="stat-label">Total Balance</div>
+          <div class="stat-value" id="totalBalance" aria-live="polite">
+            $0.00
+          </div>
+          <div class="stat-change">↑ 12% from last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Income</div>
+          <div class="stat-value" id="totalIncome" aria-live="polite">
+            $0.00
+          </div>
+          <div class="stat-change">This month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Expenses</div>
+          <div class="stat-value" id="totalExpense" aria-live="polite">
+            $0.00
+          </div>
+          <div class="stat-change">This month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Savings Progress</div>
+          <div class="stat-value" id="savingsProgress" aria-live="polite">
+            0%
+          </div>
+          <div class="stat-change">Towards your goal</div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions" aria-label="Quick Actions">
+        <a
+          href="send_money.html"
+          class="quick-action-btn"
+          aria-label="Send money to someone"
+          >💸 Send Money</a
+        >
+        <a
+          href="deposit.html"
+          class="quick-action-btn"
+          aria-label="Deposit money into your account"
+          >🏦 Deposit</a
+        >
+        <a
+          href="view_report.html"
+          class="quick-action-btn"
+          aria-label="View your financial reports"
+          >📊 View Report</a
+        >
+        <a
+          href="advisor.html"
+          class="quick-action-btn"
+          aria-label="Get AI-powered financial advice"
+          >🤖 AI Advisor</a
+        >
+      </section>
+
+      <!-- Recent Activity Section -->
+      <div class="grid grid-2">
+        <section class="card" aria-labelledby="recent-transactions-title">
+          <h3 id="recent-transactions-title">📋 Recent Transactions</h3>
+          <div
+            class="activity-list"
+            id="recentTransactions"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div class="activity-item">
+              <div class="activity-icon" role="img" aria-label="Money icon">
+                💰
+              </div>
+              <div class="activity-details">
+                <div class="activity-title">No transactions yet</div>
+                <div class="activity-time">Start by adding one</div>
+              </div>
+            </div>
+          </div>
+          <a
+            href="transactions.html"
+            style="
+              display: block;
+              text-align: center;
+              margin-top: 1rem;
+              color: var(--primary);
+              text-decoration: none;
+            "
+            >View All →</a
+          >
+        </section>
+
+        <section class="card" aria-labelledby="active-goals-title">
+          <h3 id="active-goals-title">🎯 Active Goals</h3>
+          <div
+            class="activity-list"
+            id="activeGoals"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div class="activity-item">
+              <div class="activity-icon" role="img" aria-label="Target icon">
+                🎯
+              </div>
+              <div class="activity-details">
+                <div class="activity-title">No active goals</div>
+                <div class="activity-time">Create a goal to start saving</div>
+              </div>
+            </div>
+          </div>
+          <a
+            href="saving_goals.html"
+            style="
+              display: block;
+              text-align: center;
+              margin-top: 1rem;
+              color: var(--primary);
+              text-decoration: none;
+            "
+            >Manage Goals →</a
+          >
+        </section>
+      </div>
+    </main>
+
+    <footer class="main-footer" role="contentinfo">
+      <p>
+        &copy; 2026 Smart Wallet. All rights reserved. |
+        <a href="#" style="color: var(--primary)">Privacy Policy</a>
+      </p>
+    </footer>
+
+    <!-- Optimized script loading with defer -->
+    <script src="../static/js/config.min.js" defer></script>
+    <script src="../static/js/auth.min.js" defer></script>
+    <script src="../static/js/wallet.min.js" defer></script>
+    <script src="../static/js/dashboard.min.js" defer></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("../static/js/sw.js")
+            .then((registration) =>
+              console.log("SW registered: ", registration),
+            )
+            .catch((registrationError) =>
+              console.log("SW registration failed: ", registrationError),
+            );
+        });
+      }
+    </script>
+  </body>
+</html>
