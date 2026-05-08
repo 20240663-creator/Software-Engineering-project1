@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Wallet - Your Personal Finance Manager</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body id="intro-body">
+    <header id="intro-header">
+        <nav id="intro-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <div class="nav-actions">
+                <a href="{% url 'login' %}" class="nav-link">Sign In</a>
+                <a href="{% url 'register' %}" class="nav-link nav-link-primary">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="intro-main">
+        <section id="intro-hero">
+            <div class="hero-content">
+                <h1>Take Control of Your Finances</h1>
+                <p>Smart Wallet helps you manage your money, track expenses, and achieve your financial goals with ease and security.</p>
+                <div class="hero-actions">
+                    <a href="{% url 'register' %}" class="btn-primary">Start Your Journey</a>
+                    <a href="{% url 'login' %}" class="btn-secondary">Sign In</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visual-placeholder">
+                    <div class="visual-icon">📊</div>
+                    <p>Financial Dashboard</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="intro-features">
+            <div class="container">
+                <h2>Why Choose Smart Wallet?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">💳</div>
+                        <h3>Expense Tracking</h3>
+                        <p>Monitor your spending habits and categorize transactions automatically.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Goal Setting</h3>
+                        <p>Set savings goals and track your progress towards financial freedom.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Secure & Private</h3>
+                        <p>Your financial data is encrypted and protected with bank-level security.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Easy to Use</h3>
+                        <p>Intuitive interface designed for both beginners and financial experts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="intro-cta">
+            <div class="container">
+                <h2>Ready to Transform Your Finances?</h2>
+                <p>Join thousands of users who have taken control of their financial future.</p>
+                <a href="{% url 'register' %}" class="btn-primary btn-large">Create Your Free Account</a>
+            </div>
+        </section>
+    </main>
+
+    <footer id="intro-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">💰 Smart Wallet</div>
+                <div class="footer-links">
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="#terms">Terms of Service</a>
+                    <a href="#support">Support</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; 2026 Smart Wallet. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

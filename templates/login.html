@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Wallet - Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body id="login-body">
+    <div id="login-card">
+        <header id="login-header">
+            <h1>Welcome Back</h1>
+            <p>Please sign in to continue to Smart Wallet</p>
+        </header>
+
+        <form id="login-form" method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            {% if error %}
+                <div class="form-error" style="color:#dc2626;padding:12px 16px;background:#fef2f2;border-radius:10px;border:1px solid #fecaca;margin-bottom:20px;font-size:0.95rem;">{{ error }}</div>
+            {% endif %}
+
+            <div style="margin-bottom:20px;">
+                <label id="login-label-email" for="email">Email Address</label>
+                <input id="login-input-email" class="form-input" type="email" name="email" placeholder="name@example.com" required />
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label id="login-label-password" for="password">Password</label>
+                <input id="login-input-password" class="form-input" type="password" name="password" placeholder="Enter your password" required />
+            </div>
+
+            <button id="login-btn" type="submit">Sign In</button>
+        </form>
+
+        <div id="login-footer">
+            New user? <a href="{% url 'register' %}" id="login-link-home">Create an account</a>
+        </div>
+
+    </div>
+</body>
+</html>
