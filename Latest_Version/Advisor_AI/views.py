@@ -9,57 +9,58 @@ from .context_builder import build_financial_context
 
 
 # =========================
-# AI (Groq API)
+# AI (Ollama Local)
 # =========================
-
-GROQ_API_KEY = "YOUR_GROQ_API_KEY"
 
 def call_ai(user_message, financial_context):
     """
-    Calls Groq API and returns AI response
+    Calls local Ollama model and returns response.
+    Make sure Ollama is running:
+    ollama run llama3
     """
 
     prompt = f"""
-You are a friendly financial advisor.
+You are a senior financial advisor AI.
 
-Use ONLY the data below:
+Rules:
+- Be precise and short
+- Always mention numbers when available
+- Give risk level (Low / Medium / High)
+- Give a small suggestion to fix the problem
 
+Financial Data:
 {financial_context}
 
-User question:
+User Question:
 {user_message}
 
-Answer clearly, briefly, and based only on the data.
+Answer in this format:
+1. Conclusion
+2. Reason
+3. Risk Level
+4. Suggestion
 """
 
     try:
         response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {GROQ_API_KEY}",
-                "Content-Type": "application/json"
-            },
+            "http://127.0.0.1:11434/api/generate",
             json={
-                "model": "llama-3.1-8b-instant",
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                "temperature": 0.3
+                "model": "llama3",
+                "prompt": prompt,
+                "stream": False
             },
-            timeout=30
+            timeout=60
         )
 
         response.raise_for_status()
 
         data = response.json()
 
-        return data["choices"][0]["message"]["content"]
+        return data.get("response", "")
 
-    except Exception as e:
-        raise Exception(f"Groq API error: {str(e)}")
+    except requests.exceptions.RequestException as e:
+        print("OLLAMA ERROR:", e)
+        raise Exception("Ollama service is unavailable. Make sure it's running.")
 
 
 # =========================
@@ -85,6 +86,7 @@ def view_advisor(request):
             context["error"] = "Please enter a question."
             return render(request, "advisor.html", context)
 
+        # Build financial context from your system
         financial_context = build_financial_context(user)
 
         try:
