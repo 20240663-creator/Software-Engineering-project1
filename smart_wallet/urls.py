@@ -25,5 +25,5 @@ urlpatterns = [
     path('',views.view_intro,name='intro_page'),
     path('transaction/',include('transactions.url')),
     path('notifications/', include('Latest_Version.Notifications_v2.urls')), # US #11
-    #path('advisor/',       include('advisor.urls')),        # BONUS
+    path('advisor/',       include('Latest_Version.Advisor_AI.urls')),        # BONUS
 ]

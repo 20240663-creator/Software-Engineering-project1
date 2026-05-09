@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'user',
     'transactions',
     'Latest_Version.Notifications_v2',   # US #11 — Notifications Center
-    #'advisor',         # BONUS  — AI Financial Advisor
+    'Latest_Version.Advisor_AI',         # BONUS  — AI Financial Advisor
 ]
 
 MIDDLEWARE = [
