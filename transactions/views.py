@@ -25,7 +25,9 @@ def _get_current_user(request):
 
 @login_required
 def view_transaction(request):
-    """Display all transactions for the current user."""
+    """
+    Displays all transactions for the current user's wallet.
+    """
     user = _get_current_user(request)
     if not user:
         return redirect('login')
@@ -45,7 +47,17 @@ def view_transaction(request):
 
 @login_required
 def view_send(request):
-    """Handle sending money to another user."""
+    """
+    Handles money transfer between users.
+
+    - Validates recipient
+    - Checks balance
+    - Applies fee logic
+    - Updates both wallets
+    - Creates transaction record
+    - Sends notifications
+    """
+
     user = _get_current_user(request)
     if not user:
         return redirect('login')
@@ -149,14 +161,14 @@ def view_send(request):
     return render(request, 'send_money.html', context)
 
 
-@login_required
-def view_request(request):
-    """Display request money form."""
-    return render(request, 'request_money.html')
 
 
 @login_required
 def view_categories(request):
+    """
+    Manage categories
+    -create or delete categories
+    """
     user = request.user
     categories = trans_models.Category.objects.filter(wallet=user.wallet)
     context = {'cat' : categories}
@@ -209,6 +221,15 @@ def view_categories(request):
 
 @login_required
 def view_budget(request):
+    """
+    Manages budgets.
+
+    - Create budget
+    - Update budget
+    - Calculate percentage
+    - Track spending
+    """
+
     user = request.user
     wallet = user.wallet
 
@@ -307,6 +328,9 @@ def view_budget(request):
 
 @login_required
 def delete_budget(request, id):
+    """
+    -delete budget
+    """
     user = request.user
     wallet = user.wallet
 
@@ -317,6 +341,13 @@ def delete_budget(request, id):
 
 @login_required
 def view_add_transaction(request):
+    """
+    Adds expense or saving transaction.
+
+    - Updates budget or saving goal
+    - Updates wallet balance
+    - Triggers alerts if necessary
+    """
     today = timezone.now().date()
     user=request.user
     active_bugets = trans_models.Budget.objects.filter(wallet=user.wallet,status='active')
@@ -411,6 +442,13 @@ def view_add_transaction(request):
 
 @login_required
 def view_saving_goals(request):
+    """
+    Manages saving goals.
+
+    - Create goal
+    - Update goal
+    - Track progress
+    """
     user = request.user
     wallet = user.wallet
 
@@ -480,6 +518,9 @@ def view_saving_goals(request):
 
 @login_required
 def saving_delete(request, id):
+    """
+    -delete exists savings 
+    """
     user = request.user
     wallet = user.wallet
 

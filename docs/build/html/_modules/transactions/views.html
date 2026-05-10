@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>transactions.views &mdash; Smart_Wallet 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Smart_Wallet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Smart_Wallet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">transactions.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for transactions.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_or_404</span><span class="p">,</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models.aggregates</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sum</span><span class="p">,</span> <span class="n">Count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">trans_models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Latest_Version.Notifications_v2</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">notification_models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">user</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span> <span class="k">as</span> <span class="n">user_models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_or_404</span>
+
+<span class="n">User</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span>
+
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_current_user</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the currently authenticated user from request or session.&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span> <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_id</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">user_id</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">user</span>
+
+<div class="viewcode-block" id="view_transaction">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.view_transaction">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_transaction</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays all transactions for the current user&#39;s wallet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">_get_current_user</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+    <span class="k">except</span> <span class="n">user_models</span><span class="o">.</span><span class="n">Wallet</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+    
+    <span class="n">transactions</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">reciever</span><span class="o">=</span><span class="n">wallet</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-date&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;transaction.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;transactions&#39;</span><span class="p">:</span> <span class="n">transactions</span><span class="p">,</span> 
+        <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
+        <span class="s1">&#39;wallet&#39;</span><span class="p">:</span> <span class="n">wallet</span><span class="p">,</span>
+        <span class="s1">&#39;total_balance&#39;</span><span class="p">:</span> <span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span>
+    <span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="view_send">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.view_send">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_send</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handles money transfer between users.</span>
+
+<span class="sd">    - Validates recipient</span>
+<span class="sd">    - Checks balance</span>
+<span class="sd">    - Applies fee logic</span>
+<span class="sd">    - Updates both wallets</span>
+<span class="sd">    - Creates transaction record</span>
+<span class="sd">    - Sends notifications</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">_get_current_user</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+    <span class="k">except</span> <span class="n">user_models</span><span class="o">.</span><span class="n">Wallet</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+    
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="s1">&#39;wallet&#39;</span><span class="p">:</span> <span class="n">wallet</span><span class="p">}</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;sends&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;send&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-date&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">rec_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recipient&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">rec_email</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;recipient_email&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">amount_value</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;amount&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">purpose</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;purpose&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rec_name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">rec_email</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">amount_value</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">purpose</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Please fill in all required fields.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">amount</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">amount_value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Enter a valid amount.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Amount must be greater than zero.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">amount</span> <span class="o">&gt;</span> <span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Insufficient balance.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="c1"># Find recipient by first_name/last_name or email</span>
+        <span class="n">recipient</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="n">rec_name</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">rec_email</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">last_name</span><span class="o">=</span><span class="n">rec_name</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">rec_email</span><span class="p">)</span> <span class="o">|</span>
+            <span class="n">Q</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">rec_name</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="n">rec_email</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">recipient</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Recipient not found.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">recipient</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;You cannot send money to yourself.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">recipient_wallet</span> <span class="o">=</span> <span class="n">recipient</span><span class="o">.</span><span class="n">wallet</span>
+        <span class="k">except</span> <span class="n">user_models</span><span class="o">.</span><span class="n">Wallet</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Recipient wallet not found.&#39;</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span> <span class="o">-=</span> <span class="n">amount</span>
+        <span class="n">wallet</span><span class="o">.</span><span class="n">total_expense</span> <span class="o">+=</span> <span class="n">amount</span>
+        <span class="n">wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        
+        <span class="n">recipient_wallet</span><span class="o">.</span><span class="n">total_balance</span> <span class="o">+=</span> <span class="n">amount</span>
+        <span class="n">recipient_wallet</span><span class="o">.</span><span class="n">total_income</span> <span class="o">+=</span> <span class="n">amount</span>
+        <span class="n">recipient_wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">wallet</span><span class="o">.</span><span class="n">send_limit</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fee</span> <span class="o">=</span> <span class="mf">5.00</span>
+            <span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span> <span class="o">-=</span> <span class="mi">5</span>
+            <span class="n">wallet</span><span class="o">.</span><span class="n">total_expense</span> <span class="o">+=</span> <span class="mi">5</span>
+            <span class="n">wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fee</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">wallet</span><span class="o">.</span><span class="n">send_limit</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+            <span class="n">reciever</span><span class="o">=</span><span class="n">recipient_wallet</span><span class="p">,</span>
+            <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;send&#39;</span><span class="p">,</span>
+            <span class="n">fee</span><span class="o">=</span><span class="n">fee</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">notification_models</span><span class="o">.</span><span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">user_models</span><span class="o">.</span><span class="n">WalletUser</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="n">rec_email</span><span class="p">),</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;SEND_MONEY&#39;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s2"> sent you </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">notification_models</span><span class="o">.</span><span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;GOAL_COMPLETE&#39;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;you sent to </span><span class="si">{</span><span class="n">rec_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">amount</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Transfer completed successfully.&#39;</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;wallet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wallet</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;send_money.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="view_categories">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.view_categories">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_categories</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage categories</span>
+<span class="sd">    -create or delete categories</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">categories</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cat&#39;</span> <span class="p">:</span> <span class="n">categories</span><span class="p">}</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;total_categories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;add_category&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
+
+            <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;categories.html&#39;</span><span class="p">,{</span><span class="s1">&#39;error&#39;</span> <span class="p">:</span> <span class="s1">&#39;Category is alredy exists&#39;</span><span class="p">})</span>
+            <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;total_categories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;with_budgets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;cat_transactions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;expense&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;categories.html&#39;</span><span class="p">,</span><span class="n">context</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="s1">&#39;delete_category&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
+            <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;category_id&#39;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;total_categories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;with_budgets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="n">context</span><span class="p">[</span><span class="s1">&#39;cat_transactions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;expense&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;categories.html&#39;</span><span class="p">,</span><span class="n">context</span><span class="p">)</span>
+        
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;with_budgets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;cat_transactions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;expense&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;categories.html&#39;</span><span class="p">,</span><span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="view_budget">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.view_budget">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_budget</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages budgets.</span>
+
+<span class="sd">    - Create budget</span>
+<span class="sd">    - Update budget</span>
+<span class="sd">    - Calculate percentage</span>
+<span class="sd">    - Track spending</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+
+    <span class="n">categories</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span>
+    <span class="n">budgets</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span>
+
+    <span class="n">total_percantage</span> <span class="o">=</span> <span class="n">budgets</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;percentage&#39;</span><span class="p">)</span>
+        <span class="p">)[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    
+    <span class="n">num_of_budgets</span> <span class="o">=</span> <span class="n">budgets</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+        <span class="p">)[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">percentage</span> <span class="o">=</span> <span class="n">total_percantage</span> <span class="o">/</span> <span class="n">num_of_budgets</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">percentage</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">total_spent</span> <span class="o">=</span> <span class="n">budgets</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;spended&#39;</span><span class="p">)</span>
+        <span class="p">)[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+
+    <span class="n">total_remaining</span> <span class="o">=</span> <span class="n">budgets</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;remaining&#39;</span><span class="p">)</span>
+        <span class="p">)[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;categories&#39;</span><span class="p">:</span> <span class="n">categories</span><span class="p">,</span>
+        <span class="s1">&#39;budgets&#39;</span><span class="p">:</span> <span class="n">budgets</span><span class="p">,</span>
+        <span class="s1">&#39;editing_budget&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;total_spent&#39;</span><span class="p">:</span><span class="n">total_spent</span><span class="p">,</span>
+        <span class="s1">&#39;total_remaining&#39;</span><span class="p">:</span><span class="n">total_remaining</span><span class="p">,</span>
+        <span class="s1">&#39;total_percentage&#39;</span> <span class="p">:</span> <span class="n">percentage</span>
+    <span class="p">}</span>
+
+    <span class="c1"># ================= EDIT MODE (GET) =================</span>
+    <span class="n">edit_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;edit_id&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">edit_id</span><span class="p">:</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;editing_budget&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">edit_id</span><span class="p">)</span>
+
+    <span class="c1"># ================= POST =================</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+
+        <span class="c1"># -------- CREATE / UPDATE --------</span>
+        <span class="k">if</span> <span class="s1">&#39;create-budget&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
+
+            <span class="n">budget_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;budget_id&#39;</span><span class="p">)</span>
+            <span class="n">category_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;category_id&#39;</span><span class="p">)</span>
+            <span class="n">amount</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;amount&#39;</span><span class="p">)</span>
+            <span class="n">start_at</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_at&#39;</span><span class="p">)</span>
+            <span class="n">end_at</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_at&#39;</span><span class="p">)</span>
+
+            <span class="n">category_obj</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">category_id</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">start_at</span> <span class="o">&gt;</span> <span class="n">end_at</span><span class="p">:</span>
+                <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Dates are not valid&#39;</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;budget.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+            <span class="c1"># UPDATE</span>
+            <span class="k">if</span> <span class="n">budget_id</span><span class="p">:</span>
+                <span class="n">budget</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">budget_id</span><span class="p">,</span> <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span>
+
+                <span class="n">budget</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category_obj</span>
+                <span class="n">budget</span><span class="o">.</span><span class="n">amount</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span>
+                <span class="n">budget</span><span class="o">.</span><span class="n">start_at</span> <span class="o">=</span> <span class="n">start_at</span>
+                <span class="n">budget</span><span class="o">.</span><span class="n">end_at</span> <span class="o">=</span> <span class="n">end_at</span>
+
+                <span class="n">budget</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">budget</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span> <span class="o">-</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">budget</span><span class="o">.</span><span class="n">spended</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">budget</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">budget</span><span class="o">.</span><span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="n">budget</span><span class="o">.</span><span class="n">spended</span><span class="p">)</span> <span class="o">/</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">budget</span><span class="o">.</span><span class="n">amount</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">budget</span><span class="o">.</span><span class="n">percentage</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="n">budget</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="c1"># CREATE</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category_obj</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;active&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Budget already exists for this category&#39;</span>
+                    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;budget.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+                <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">category_obj</span><span class="p">,</span>
+                    <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
+                    <span class="n">spended</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">start_at</span><span class="o">=</span><span class="n">start_at</span><span class="p">,</span>
+                    <span class="n">end_at</span><span class="o">=</span><span class="n">end_at</span><span class="p">,</span>
+                    <span class="n">percentage</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">remaining</span><span class="o">=</span><span class="n">amount</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;budget&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;budget.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="delete_budget">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.delete_budget">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_budget</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    -delete budget</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+
+    <span class="n">budget</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span>
+    <span class="n">budget</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;budget&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="view_add_transaction">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.view_add_transaction">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_add_transaction</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds expense or saving transaction.</span>
+
+<span class="sd">    - Updates budget or saving goal</span>
+<span class="sd">    - Updates wallet balance</span>
+<span class="sd">    - Triggers alerts if necessary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">active_bugets</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;active&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">active_bugets</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">budget</span><span class="o">.</span><span class="n">end_at</span> <span class="o">&lt;</span> <span class="n">today</span><span class="p">:</span>
+            <span class="n">budget</span><span class="o">.</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;expired&#39;</span>
+            <span class="n">budget</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    
+    <span class="n">active_bugets</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;active&#39;</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;active_budgets&#39;</span> <span class="p">:</span> <span class="n">active_bugets</span><span class="p">}</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;active_savings_goals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span><span class="p">)</span>
+    
+    
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">amount</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;amount&#39;</span><span class="p">))</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transaction_type&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">amount</span> <span class="o">&gt;</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;add_transaction&#39;</span><span class="p">,{</span><span class="s1">&#39;error&#39;</span> <span class="p">:</span> <span class="s1">&#39;No enough money&#39;</span><span class="p">})</span>
+        
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;expense&#39;</span><span class="p">:</span>
+            <span class="n">budget_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;budget_id&#39;</span><span class="p">)</span>
+            <span class="n">budget</span><span class="o">=</span><span class="n">trans_models</span><span class="o">.</span><span class="n">Budget</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">budget_id</span><span class="p">)</span>
+
+            <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">),</span>
+                <span class="n">budget</span><span class="o">=</span><span class="n">budget</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;expense&#39;</span>
+            <span class="p">)</span>
+            <span class="n">budget</span><span class="o">.</span><span class="n">spended</span> <span class="o">+=</span> <span class="n">amount</span>
+            <span class="n">budget</span><span class="o">.</span><span class="n">remaining</span> <span class="o">-=</span> <span class="n">amount</span>
+            <span class="n">budget</span><span class="o">.</span><span class="n">percentage</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">budget</span><span class="o">.</span><span class="n">spended</span> <span class="o">/</span> <span class="n">budget</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span> <span class="o">-=</span> <span class="n">amount</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">total_expense</span> <span class="o">+=</span> <span class="n">amount</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">budget</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="k">if</span> <span class="n">budget</span><span class="o">.</span><span class="n">percentage</span> <span class="o">&gt;=</span> <span class="mi">80</span> <span class="ow">and</span> <span class="n">budget</span><span class="o">.</span><span class="n">percentage</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="n">notification_models</span><span class="o">.</span><span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;BUDGET_ALERT&#39;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;🚨 You’ve reached </span><span class="si">{</span><span class="n">budget</span><span class="o">.</span><span class="n">percentage</span><span class="si">}</span><span class="s2">% of your budget. Review your spending.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">budget</span><span class="o">.</span><span class="n">percentage</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="n">notification_models</span><span class="o">.</span><span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;BUDGET_EXCEEDED&#39;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;🚨 You’ve reached </span><span class="si">{</span><span class="n">budget</span><span class="o">.</span><span class="n">percentage</span><span class="si">}</span><span class="s2">% of your budget </span><span class="si">{</span><span class="n">budget</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. Review your spending.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;add_transaction&#39;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;saving&#39;</span><span class="p">:</span>
+            <span class="n">savings_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;savings_goal_id&#39;</span><span class="p">)</span>
+            <span class="n">saving</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">savings_id</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">amount</span> <span class="o">+</span> <span class="n">saving</span><span class="o">.</span><span class="n">current_amount</span> <span class="o">&gt;</span> <span class="n">saving</span><span class="o">.</span><span class="n">target_amount</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;add_transaction.html&#39;</span><span class="p">,{</span><span class="s1">&#39;error&#39;</span> <span class="p">:</span> <span class="s1">&#39;Exceed the target of this goal&#39;</span><span class="p">})</span>
+
+            <span class="n">trans_models</span><span class="o">.</span><span class="n">Transaction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="n">amount</span><span class="o">=</span><span class="n">amount</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">),</span>
+                <span class="n">saving_goals</span><span class="o">=</span><span class="n">saving</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;expense&#39;</span>
+
+            <span class="p">)</span>
+            <span class="n">saving</span><span class="o">.</span><span class="n">current_amount</span> <span class="o">+=</span> <span class="n">amount</span>
+            <span class="n">saving</span><span class="o">.</span><span class="n">remaining</span> <span class="o">-=</span> <span class="n">amount</span>
+            <span class="n">saving</span><span class="o">.</span><span class="n">percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">saving</span><span class="o">.</span><span class="n">current_amount</span> <span class="o">/</span> <span class="n">saving</span><span class="o">.</span><span class="n">target_amount</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+            <span class="k">if</span> <span class="n">saving</span><span class="o">.</span><span class="n">current_amount</span> <span class="o">==</span> <span class="n">saving</span><span class="o">.</span><span class="n">target_amount</span><span class="p">:</span>
+                <span class="n">saving</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;complete&#39;</span>
+                <span class="n">notification_models</span><span class="o">.</span><span class="n">Notification</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;GOAL_COMPLETE&#39;</span><span class="p">,</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;🎉 Congratulations! You’ve completed your saving goal.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">saving</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span> <span class="o">-=</span> <span class="n">amount</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">total_expense</span> <span class="o">+=</span> <span class="n">amount</span>
+            <span class="n">user</span><span class="o">.</span><span class="n">wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;add_transaction&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;add_transaction.html&#39;</span><span class="p">,</span><span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="view_saving_goals">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.view_saving_goals">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_saving_goals</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages saving goals.</span>
+
+<span class="sd">    - Create goal</span>
+<span class="sd">    - Update goal</span>
+<span class="sd">    - Track progress</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+
+    <span class="n">savings_goals</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-id&#39;</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;savings_goals&#39;</span><span class="p">:</span> <span class="n">savings_goals</span><span class="p">,</span>
+        <span class="s1">&#39;editing_goal&#39;</span><span class="p">:</span> <span class="kc">None</span>
+    <span class="p">}</span>
+
+    <span class="c1"># stats</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;active_goals_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savings_goals</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;completed_goals_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savings_goals</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;complete&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;total_target_amount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savings_goals</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;target_amount&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">context</span><span class="p">[</span><span class="s1">&#39;total_saved_amount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savings_goals</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Sum</span><span class="p">(</span><span class="s1">&#39;current_amount&#39;</span><span class="p">))[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="c1">#context[&#39;percentage&#39;] = </span>
+    <span class="c1"># ================= EDIT MODE (GET) =================</span>
+    <span class="n">edit_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;edit_id&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">edit_id</span><span class="p">:</span>
+        <span class="n">context</span><span class="p">[</span><span class="s1">&#39;editing_goal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">edit_id</span><span class="p">,</span> <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span>
+
+    <span class="c1"># ================= POST =================</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+
+        <span class="n">goal_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;goal_id&#39;</span><span class="p">)</span>
+        <span class="n">goal_name</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+        <span class="n">target_amount</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_amount&#39;</span><span class="p">)</span>
+        <span class="n">deadline</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deadline&#39;</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;in_progress&#39;</span><span class="p">)</span>
+
+        <span class="c1"># UPDATE</span>
+        <span class="k">if</span> <span class="n">goal_id</span><span class="p">:</span>
+            <span class="n">goal</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span>
+                <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">goal_id</span><span class="p">,</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span>
+            <span class="p">)</span>
+
+            <span class="n">goal</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">goal_name</span>
+            <span class="n">goal</span><span class="o">.</span><span class="n">target_amount</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">target_amount</span><span class="p">)</span>
+            <span class="n">goal</span><span class="o">.</span><span class="n">deadline</span> <span class="o">=</span> <span class="n">deadline</span>
+
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;in_progress&#39;</span><span class="p">:</span>
+                <span class="n">goal</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;in_progress&#39;</span>
+
+            <span class="n">goal</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="c1"># CREATE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">goal_name</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;saving-goals.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+            <span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">goal_name</span><span class="p">,</span>
+                <span class="n">target_amount</span><span class="o">=</span><span class="n">target_amount</span><span class="p">,</span>
+                <span class="n">deadline</span><span class="o">=</span><span class="n">deadline</span><span class="p">,</span>
+                <span class="n">remaining</span><span class="o">=</span><span class="n">target_amount</span><span class="p">,</span>
+                <span class="n">status</span><span class="o">=</span><span class="s1">&#39;in_progress&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;saving_goals&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;saving-goals.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="saving_delete">
+<a class="viewcode-back" href="../../transactions.html#transactions.views.saving_delete">[docs]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">saving_delete</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    -delete exists savings </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">wallet</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">wallet</span>
+
+    <span class="n">goal</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">trans_models</span><span class="o">.</span><span class="n">SavingGoals</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">wallet</span><span class="o">=</span><span class="n">wallet</span><span class="p">)</span>
+    <span class="n">wallet</span><span class="o">.</span><span class="n">total_balance</span> <span class="o">+=</span> <span class="n">goal</span><span class="o">.</span><span class="n">current_amount</span>
+    <span class="n">wallet</span><span class="o">.</span><span class="n">total_expense</span> <span class="o">-=</span> <span class="n">goal</span><span class="o">.</span><span class="n">current_amount</span>
+    <span class="n">wallet</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="n">goal</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;saving_goals&#39;</span><span class="p">)</span></div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Yassen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

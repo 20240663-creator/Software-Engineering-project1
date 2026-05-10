@@ -28,7 +28,15 @@ def _get_current_user(request):
 
 @login_required
 def view_home(request):
-    """Display home dashboard with wallet balance and recent transactions."""
+    """
+    Displays the main dashboard.
+
+    Shows:
+    - Wallet balance
+    - Recent transactions
+    - Saving goals summary
+    """
+
     user = _get_current_user(request)
     if not user:
         return redirect('login')
@@ -55,7 +63,9 @@ def view_home(request):
 
 @login_required
 def view_profile(request):
-    """Display user profile information."""
+    """
+    Displays user profile information.
+    """
     user = _get_current_user(request)
     if not user:
         return redirect('login')
@@ -67,6 +77,13 @@ def view_profile(request):
 
 
 def view_login(request):
+    """
+    Handles user authentication.
+
+    Validates email and password.
+    Creates session upon successful login.
+    """
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
@@ -92,6 +109,14 @@ def view_login(request):
 
 
 def view_register(request):
+    """
+    Handles user registration.
+
+    - Validates input
+    - Creates new user
+    - Automatically creates wallet
+    """
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         name = request.POST.get('name', '').strip()
@@ -135,7 +160,9 @@ def view_intro(request):
 
 @login_required
 def view_report(request):
-    """Display transaction reports for the user."""
+    """
+    Displays all user transactions as a financial report.
+    """
     user = _get_current_user(request)
     if not user:
         return redirect('login')
@@ -161,6 +188,15 @@ def view_report(request):
 
 @login_required
 def view_deposit(request):
+    """
+    Handles deposit transactions.
+
+    - Validates amount
+    - Updates wallet balance
+    - Creates income transaction
+    - Sends notification
+    """
+
     """Handle deposit transactions to user wallet."""
     user = _get_current_user(request)
     if not user:
@@ -212,6 +248,9 @@ def view_deposit(request):
 
 
 def view_logout(request):
+    """
+    Logs out user and clears session.
+    """
     logout(request)
     if 'user_id' in request.session:
         del request.session['user_id']

@@ -70,6 +70,13 @@ Answer in this format:
 @login_required
 @require_http_methods(["GET", "POST"])
 def view_advisor(request):
+    """
+    Handles AI financial advisor interaction.
+
+    - Builds financial context
+    - Sends request to local Ollama model
+    - Stores conversation in database
+    """
     user = request.user
     history = AdvisorChat.objects.filter(user=user).order_by("-id")
 
@@ -114,6 +121,10 @@ def view_advisor(request):
 
 @login_required
 def delete_chat(request, chat_id):
+    """
+    Deletes a specific AI conversation.
+    """
+    
     if request.method == "POST":
         AdvisorChat.objects.filter(
             id=chat_id,

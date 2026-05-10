@@ -3,6 +3,21 @@ from django.conf import settings
 
 
 class Notification(models.Model):
+    """
+    Represents system notifications sent to users.
+
+    Types include:
+    - Budget alerts
+    - Goal updates
+    - Money transfers
+    - Deposits
+
+    Contains:
+    - Message
+    - Read status
+    - Timestamp
+    """
+    
     TYPE_CHOICES = [
         ('BUDGET_ALERT',    'Budget Alert'),
         ('BUDGET_EXCEEDED', 'Budget Exceeded'),

@@ -3,7 +3,16 @@ from django.conf import settings
 
 
 class AdvisorChat(models.Model):
-    """Stores each question the user asked the AI and the AI's answer."""
+    """
+    Stores AI conversation history.
+
+    Each record contains:
+    - User question
+    - AI response
+    - Timestamp
+
+    Used by financial advisor feature.
+    """
     user         = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

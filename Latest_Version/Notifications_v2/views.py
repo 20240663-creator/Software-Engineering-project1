@@ -5,7 +5,10 @@ from .models import Notification
 
 @login_required
 def view_notifications(request):
-    """Display all notifications for the current user, unread first."""
+    """
+    Displays user notifications.
+    """
+
     notifications = Notification.objects.filter(user=request.user).order_by('is_read', '-timestamp')
     unread_count  = notifications.filter(is_read=False).count()
 
@@ -17,7 +20,9 @@ def view_notifications(request):
 
 @login_required
 def mark_read(request, notification_id):
-    """Mark a single notification as read, then go back to notifications page."""
+    """
+    Marks a single notification as read.
+    """
     notification = get_object_or_404(Notification, id=notification_id, user=request.user)
     notification.is_read = True
     notification.save()

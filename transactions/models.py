@@ -6,6 +6,14 @@ from user import models as user_models
 
 
 class Category(models.Model):
+    """
+    Represents transaction categories for a specific wallet.
+
+    Each category belongs to one wallet.
+    Category names must be unique per wallet.
+    Used for budgeting and expense tracking.
+    """
+
     wallet = models.ForeignKey('user.Wallet', on_delete=models.CASCADE, related_name='categories')
     name = models.CharField(max_length=255)
 
@@ -17,6 +25,24 @@ class Category(models.Model):
 
 
 class Transaction(models.Model):
+    """
+    Represents all financial transactions in the system.
+
+    Supports types:
+    - income
+    - expense
+    - saving
+    - send
+
+    Can be linked to:
+    - Wallet
+    - Budget
+    - SavingGoals
+    - Receiver Wallet (for transfers)
+
+    Automatically records creation date.
+    """
+
     TYPE_CHOICES = [
         ('income' , 'Income'),
         ('expense', 'Expense'),
@@ -51,6 +77,20 @@ class Transaction(models.Model):
 
 
 class Budget(models.Model):
+    """
+    Represents a spending limit for a specific category.
+
+    Tracks:
+    - Budget amount
+    - Spent amount
+    - Remaining amount
+    - Percentage usage
+    - Start and end dates
+    - Status (active, expired, completed)
+
+    Linked to a wallet and category.
+    """
+
     wallet = models.ForeignKey('user.Wallet', on_delete=models.CASCADE, related_name='budgets')
     status_choices=[
         ('active','Active'),
@@ -75,6 +115,19 @@ class Budget(models.Model):
 
 
 class SavingGoals(models.Model):
+    """
+    Represents a financial saving goal.
+
+    Tracks:
+    - Target amount
+    - Current saved amount
+    - Deadline
+    - Progress percentage
+    - Status (in_progress, complete, failed)
+
+    Linked to a wallet.
+    """
+    
     choices = [
         ('in_progress','In_progress'),
         ('complete','Complete'),

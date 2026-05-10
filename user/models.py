@@ -4,6 +4,13 @@ from django.conf import settings
 
 
 class WalletUser(AbstractUser):
+    """
+    Custom user model for Smart Wallet system.
+
+    Extends Django AbstractUser.
+    Adds unique email field for authentication.
+    Represents system users who own wallets.
+    """
     email = models.EmailField(unique=True)
 
     def __str__(self):
@@ -11,6 +18,20 @@ class WalletUser(AbstractUser):
 
 
 class Wallet(models.Model):
+    """
+    Represents a financial wallet linked to one user.
+
+    Stores:
+    - Total balance
+    - Total income
+    - Total expense
+    - Send limit
+
+    Relationship:
+    OneToOne with WalletUser.
+    Central entity for all financial operations.
+    """
+    
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
