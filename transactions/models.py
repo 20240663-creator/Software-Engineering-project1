@@ -88,7 +88,7 @@ class SavingGoals(models.Model):
     status = models.CharField(max_length=255,choices=choices, default='in_progress')
     remaining = models.DecimalField(max_digits=12,decimal_places=2,default=0)
     progress = models.PositiveIntegerField(default=0)
-
+    percentage = models.PositiveBigIntegerField(default=0)
     def __str__(self):
         return f"{self.name}"
     

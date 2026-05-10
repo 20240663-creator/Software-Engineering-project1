@@ -152,6 +152,7 @@
         }
 
         .transactions-section {
+            height: 400px;
             background: white;
             border-radius: 15px;
             padding: 30px;
@@ -165,8 +166,12 @@
         }
 
         .transaction-list {
-            list-style: none;
-        }
+    display: flex;
+    gap: 15px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+}
 
         .transaction-item {
             display: flex;

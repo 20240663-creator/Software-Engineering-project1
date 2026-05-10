@@ -33,7 +33,15 @@
 
             <div style="margin-bottom:20px;">
                 <label class="login-label" for="password">Password</label>
-                <input class="form-input" type="password" name="password" placeholder="Create a strong password" required />
+                <input
+                class="form-input"
+                type="password"
+                name="password"
+                placeholder="Create a strong password"
+                required
+                pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-]).{8,}"
+                title="Password must be at least 8 characters, include uppercase, lowercase, number and special character."
+            />
             </div>
 
             <div style="margin-bottom:24px;">
@@ -48,5 +56,8 @@
             Already have an account? <a href="{% url 'login' %}" id="login-link-home">Sign In</a>
         </div>
     </div>
+    <script>
+
+    </script>
 </body>
 </html>

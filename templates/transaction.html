@@ -7,13 +7,24 @@
     <title>Smart Wallet - Transactions</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
-<body id="transaction-page">
-    <header id="transaction-header">
-        <div class="logo">💰 Smart Wallet</div>
-        <div class="transaction-nav">
-            <a href="{% url 'home' %}" class="nav-link">Home</a>
-            <a href="{% url 'logout' %}" class="nav-link">Logout</a>
-        </div>
+<body id="user-home-body">
+    <header id="user-home-header">
+       <nav id="user-home-nav">
+            <div class="logo">💰 Smart Wallet</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Dashboard</a></li>
+                <li><a href="{% url 'transactions' %}">History</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'categories' %}">Categories</a></li>
+                <li><a href="{% url 'budget' %}">Budgets</a></li>
+                <li><a href="{% url 'add_transaction' %}">Transaction</a></li>
+                <li><a href="{% url 'saving_goals' %}">Saving Goals</a></li>
+                <li><a title="Notifications" href="{% url 'notifications' %}">🔔  {% if unread_count > 0 %}<span style="background:#e74c3c;color:white;border-radius:10px;padding:2px 7px;font-size:11px;">{{ unread_count }}</span>{% endif %}</a></li>
+                <li><a title="AI advisor" href="{% url 'advisor' %}">🤖 </a></li>
+                <li><a title="logout" href="{% url 'logout' %}" >🚪</a></li>
+                
+            </ul>
+        </nav>
     </header>
 
     <main class="transaction-container">

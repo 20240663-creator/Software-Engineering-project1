@@ -104,12 +104,10 @@ def view_send(request):
             context['error'] = 'Recipient wallet not found.'
             return render(request, 'send_money.html', context)
 
-        # Update sender wallet balance
         wallet.total_balance -= amount
         wallet.total_expense += amount
         wallet.save()
         
-        # Update recipient wallet balance
         recipient_wallet.total_balance += amount
         recipient_wallet.total_income += amount
         recipient_wallet.save()
@@ -125,7 +123,6 @@ def view_send(request):
             wallet.send_limit -= 1
             wallet.save()
 
-        # Create transaction using correct Transaction model fields
         trans_models.Transaction.objects.create(
             wallet=wallet,
             reciever=recipient_wallet,
@@ -267,7 +264,7 @@ def view_budget(request):
             category_obj = trans_models.Category.objects.get(id=category_id)
 
             if start_at > end_at:
-                context['message'] = 'Dates are not valid'
+                context['error'] = 'Dates are not valid'
                 return render(request, 'budget.html', context)
 
             # UPDATE
@@ -340,7 +337,7 @@ def view_add_transaction(request):
         type = request.POST.get('transaction_type')
 
         if amount > user.wallet.total_balance:
-            return render(request,'add_transaction',{'message' : 'No enough money'})
+            return render(request,'add_transaction',{'error' : 'No enough money'})
         
         if type == 'expense':
             budget_id = request.POST.get('budget_id')
@@ -382,7 +379,7 @@ def view_add_transaction(request):
             saving = trans_models.SavingGoals.objects.get(id=savings_id,status='in_progress')
 
             if amount + saving.current_amount > saving.target_amount:
-                return render(request,'add_transaction.html',{'message' : 'Exceed the target of this goal'})
+                return render(request,'add_transaction.html',{'error' : 'Exceed the target of this goal'})
 
             trans_models.Transaction.objects.create(
                 wallet=user.wallet,
@@ -429,7 +426,7 @@ def view_saving_goals(request):
     context['completed_goals_count'] = savings_goals.filter(status='complete').aggregate(total=Count('id'))['total'] or 0
     context['total_target_amount'] = savings_goals.filter(status='in_progress').aggregate(total=Sum('target_amount'))['total'] or 0
     context['total_saved_amount'] = savings_goals.filter(status='in_progress').aggregate(total=Sum('current_amount'))['total'] or 0
-
+    #context['percentage'] = 
     # ================= EDIT MODE (GET) =================
     edit_id = request.GET.get('edit_id')
     if edit_id:

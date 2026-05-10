@@ -21,7 +21,6 @@ def _get_current_user(request):
         if user_id:
             user = User.objects.filter(id=user_id).first()
     
-    # Ensure user has a name for templates
     if user and not user.first_name:
         user.first_name = user.username
     
@@ -39,7 +38,6 @@ def view_home(request):
     except models.Wallet.DoesNotExist:
         return redirect('deposit')
 
-    # Map wallet data to user object for template compatibility
     user.total_balance = wallet.total_balance
     user.total_income = wallet.total_income
     user.total_expense = wallet.total_expense
@@ -62,7 +60,6 @@ def view_profile(request):
     if not user:
         return redirect('login')
     
-    # Map fields for template compatibility
     user.created_at = user.date_joined
     user.updated_at = user.date_joined
     
@@ -105,7 +102,11 @@ def view_register(request):
 
         if User.objects.filter(email=email).exists():
             return render(request, 'register.html', {'error': 'This email is already registered.'})
-
+        
+        confirm = request.POST.get('password_confirm')
+        if confirm != password:
+            return render(request,'register.html',{'error' : 'password is not matching'})
+        
         username = email
         user = User.objects.create_user(username=username, email=email, password=password)
         if name:
@@ -187,7 +188,6 @@ def view_deposit(request):
         context['account'] = request.POST.get('account', '')
         context['description'] = request.POST.get('description', '')
         
-        # Create transaction using correct Transaction model fields
         transactions_models.Transaction.objects.create(
             wallet=wallet,
             reciever=wallet,
@@ -214,4 +214,14 @@ def view_logout(request):
     if 'user_id' in request.session:
         del request.session['user_id']
     return redirect('login')
+
+
+@login_required
+def profile_edit(request):
+    if request.method == "POST":
+        user = request.user
+        user.first_name = request.POST.get("first_name")
+        user.email = request.POST.get("email")
+        user.save()
+        return redirect("profile")
 
