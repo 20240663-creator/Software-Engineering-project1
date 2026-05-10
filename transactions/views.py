@@ -126,7 +126,7 @@ def view_send(request):
         trans_models.Transaction.objects.create(
             wallet=wallet,
             reciever=recipient_wallet,
-            amount=amount + Decimal(fee),
+            amount=amount,
             description=description,
             type='send',
             fee=fee,
@@ -286,8 +286,8 @@ def view_budget(request):
                 budget.save()
             # CREATE
             else:
-                if trans_models.Budget.objects.filter(wallet=wallet, category=category_obj, status='in_progress').exists():
-                    context['message'] = 'Budget already exists for this category'
+                if trans_models.Budget.objects.filter(wallet=wallet, category=category_obj, status='active').exists():
+                    context['error'] = 'Budget already exists for this category'
                     return render(request, 'budget.html', context)
 
                 trans_models.Budget.objects.create(

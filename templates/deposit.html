@@ -28,6 +28,16 @@
         </nav>
     </header>
 
+    {% if error %}
+                <div class="form-error" style="color:#dc2626;padding:12px 16px;background:#fef2f2;border-radius:10px;border:1px solid #fecaca;margin-bottom:20px;font-size:0.95rem;">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="form-success" style="color:#16a34a;padding:12px 16px;background:#ecfdf5;border-radius:10px;border:1px solid #a7f3d0;margin-bottom:20px;font-size:0.95rem;">{{ success }}</div>
+            {% endif %}
+             {% if info %}
+                <div class="form-info" style="color:#3730a3;padding:12px 16px;background:#e0e7ff;border-radius:10px;border:1px solid #c7d2fe;margin-bottom:20px;font-size:0.95rem;">{{ info }}</div>
+    {% endif %}
+
     <div class="container" id="deposit-container">
         <div class="welcome-section">
             <h1>Deposit Money 💳</h1>
@@ -42,7 +52,7 @@
                         <label for="amount">Amount to Deposit:</label>
                         <div class="amount-input-group">
                             <span class="currency-symbol">$</span>
-                            <input type="number" id="amount" class="form-control" name="amount" placeholder="0.00" min="0" step="0.01" required>
+                            <input type="number" id="amount" class="form-control" name="amount" placeholder="0.00" min="0" step="0.01" style="padding-left: 30px;" required>
                         </div>
                     </div>
 

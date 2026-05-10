@@ -134,7 +134,6 @@
                 <li><a href="{% url 'add_transaction' %}">Transaction</a></li>
                 <li><a href="{% url 'saving_goals' %}">Saving Goals</a></li>
                 <li><a title="Notifications" href="{% url 'notifications' %}">🔔  {% if unread_count > 0 %}<span style="background:#e74c3c;color:white;border-radius:10px;padding:2px 7px;font-size:11px;">{{ unread_count }}</span>{% endif %}</a></li>
-                <li><a title="AI advisor" href="{% url 'advisor' %}">🤖 </a></li>
                 <li><a title="logout" href="{% url 'logout' %}" >🚪</a></li>
                 
             </ul>
@@ -143,6 +142,16 @@
 </header>
 
 <div class="advisor-container">
+
+    {% if error %}
+                <div class="form-error" style="color:#dc2626;padding:12px 16px;background:#fef2f2;border-radius:10px;border:1px solid #fecaca;margin-bottom:20px;font-size:0.95rem;">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="form-success" style="color:#16a34a;padding:12px 16px;background:#ecfdf5;border-radius:10px;border:1px solid #a7f3d0;margin-bottom:20px;font-size:0.95rem;">{{ success }}</div>
+            {% endif %}
+             {% if info %}
+                <div class="form-info" style="color:#3730a3;padding:12px 16px;background:#e0e7ff;border-radius:10px;border:1px solid #c7d2fe;margin-bottom:20px;font-size:0.95rem;">{{ info }}</div>
+    {% endif %}
 
     <!-- Intro -->
     <div class="intro-card">
@@ -222,6 +231,9 @@
     </div>
 
 </div>
+<footer>
+        <p>&copy; 2026 Smart Wallet. All rights reserved. | <a href="#privacy" style="color: #667eea;">Privacy Policy</a></p>
+    </footer>
 
 <script>
 function fillQuestion(chip) {

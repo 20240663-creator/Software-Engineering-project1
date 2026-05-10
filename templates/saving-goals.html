@@ -403,8 +403,8 @@
                 <li><a href="{% url 'categories' %}">Categories</a></li>
                 <li><a href="{% url 'budget' %}">Budgets</a></li>
                 <li><a href="{% url 'add_transaction' %}">Transaction</a></li>
-                <li><a href="{% url 'notifications' %}">🔔 Notifications {% if unread_count > 0 %}<span style="background:#e74c3c;color:white;border-radius:10px;padding:2px 7px;font-size:11px;">{{ unread_count }}</span>{% endif %}</a></li>
-                <li><a href="{% url 'advisor' %}">🤖 AI Advisor</a></li>
+                <li><a href="{% url 'notifications' %}">🔔{% if unread_count > 0 %}<span style="background:#e74c3c;color:white;border-radius:10px;padding:2px 7px;font-size:11px;">{{ unread_count }}</span>{% endif %}</a></li>
+                <li><a href="{% url 'advisor' %}">🤖 </a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
                 
             </ul>

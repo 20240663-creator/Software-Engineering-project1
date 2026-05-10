@@ -96,6 +96,10 @@ def view_register(request):
         email = request.POST.get('email', '').strip()
         name = request.POST.get('name', '').strip()
         password = request.POST.get('password', '')
+        confirm = request.POST.get('password_confirm')
+
+        if confirm != password:
+            return render(request,'register.html',{'error' : 'password is not matching'})
 
         if not email or not password:
             return render(request, 'register.html', {'error': 'Email and password are required.'})
@@ -103,11 +107,9 @@ def view_register(request):
         if User.objects.filter(email=email).exists():
             return render(request, 'register.html', {'error': 'This email is already registered.'})
         
-        confirm = request.POST.get('password_confirm')
-        if confirm != password:
-            return render(request,'register.html',{'error' : 'password is not matching'})
         
-        username = email
+        
+        username = name
         user = User.objects.create_user(username=username, email=email, password=password)
         if name:
             user.first_name = name

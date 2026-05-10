@@ -25,7 +25,6 @@ SECRET_KEY = 'django-insecure-)&5#4$$5h4tun9(7%tvr@q_&mz^bm*@55noezp#$uw_!%x@pnl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -126,3 +125,5 @@ STATICFILES_DIRS = [
 ]
 
 AUTH_USER_MODEL = 'user.WalletUser'
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']

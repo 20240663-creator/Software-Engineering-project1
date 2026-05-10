@@ -325,7 +325,6 @@
                 <li><a href="{% url 'home' %}">Dashboard</a></li>
                 <li><a href="{% url 'transactions' %}">History</a></li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
-                <li><a href="{% url 'categories' %}">Categories</a></li>
                 <li><a href="{% url 'budget' %}">Budgets</a></li>
                 <li><a href="{% url 'add_transaction' %}">Transaction</a></li>
                 <li><a href="{% url 'saving_goals' %}">Saving Goals</a></li>
@@ -336,6 +335,16 @@
             </ul>
         </nav>
     </header>
+
+    {% if error %}
+                <div class="form-error" style="color:#dc2626;padding:12px 16px;background:#fef2f2;border-radius:10px;border:1px solid #fecaca;margin-bottom:20px;font-size:0.95rem;">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="form-success" style="color:#16a34a;padding:12px 16px;background:#ecfdf5;border-radius:10px;border:1px solid #a7f3d0;margin-bottom:20px;font-size:0.95rem;">{{ success }}</div>
+            {% endif %}
+             {% if info %}
+                <div class="form-info" style="color:#3730a3;padding:12px 16px;background:#e0e7ff;border-radius:10px;border:1px solid #c7d2fe;margin-bottom:20px;font-size:0.95rem;">{{ info }}</div>
+    {% endif %}
 
     <div class="category-container">
         <!-- welcome header -->

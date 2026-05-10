@@ -6,6 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Wallet - User Profile</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .profile h2{
+            margin-top: 15px;
+        }
+
+        .btn-edit{
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .profile form label{
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            
+        }
+
+        .profile form input{
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .save-btn {
+            background-color: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+        .cancel-btn {
+            background-color: #ccc;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-left: 10px;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body id="user-home-body">
 <header id="user-home-header">
@@ -14,7 +65,6 @@
             <ul class="nav-links">
                 <li><a href="{% url 'home' %}">Dashboard</a></li>
                 <li><a href="{% url 'transactions' %}">History</a></li>
-                <li><a href="{% url 'profile' %}">Profile</a></li>
                 <li><a href="{% url 'categories' %}">Categories</a></li>
                 <li><a href="{% url 'budget' %}">Budgets</a></li>
                 <li><a href="{% url 'add_transaction' %}">Transaction</a></li>
@@ -28,22 +78,22 @@
     </header>
 <div class="container" id="profile-container">
     <div class="card" id="profile-card">
-        <h1>User Profile</h1>
+        <h1 style="margin-bottom: 10px; color: rgb(46, 46, 185);">User Profile</h1>
         <p class="profile-label">Name</p>
-        <p class="profile-value">{{ user.first_name }}</p>
+        <p class="profile-value" style="color: rgb(46, 46, 185);">{{ user.first_name }}</p>
 
         <p class="profile-label">Email</p>
-        <p class="profile-value">{{ user.email }}</p>
+        <p class="profile-value" style="color: rgb(46, 46, 185);">{{ user.email }}</p>
 
-        <p class="profile-label">Member since</p>
-        <p class="profile-value">{{ user.created_at|date:"F j, Y, g:i a" }}</p>
+        <p class="profile-label" >Member since</p>
+        <p class="profile-value" style="color: rgb(46, 46, 185);">{{ user.created_at|date:"F j, Y, g:i a" }}</p>
 
         <p class="profile-label">Last updated</p>
-        <p class="profile-value">{{ user.updated_at|date:"F j, Y, g:i a" }}</p>
+        <p class="profile-value" style="color: rgb(46, 46, 185);">{{ user.updated_at|date:"F j, Y, g:i a" }}</p>
 
-        <a href="#" class="btn-edit" id="editProfileBtn">Edit Profile</a>
+        <a href="#" class="btn-edit " id="editProfileBtn">Edit Profile</a>
         <div id="editProfileModal" class="modal" style="display:none;">
-            <div class="modal-content">
+            <div class="modal-content profile" >
                 <h2>Edit Profile</h2>
 
                 <form method="post" action="{% url 'profile_edit' %}">
@@ -55,8 +105,8 @@
                     <label>Email</label>
                     <input type="email" name="email" value="{{ user.email }}" required>
 
-                    <button type="submit">Save</button>
-                    <button type="button" id="closeModal">Cancel</button>
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" id="closeModal" class="cancel-btn">Cancel</button>
                 </form>
             </div>
 </div>

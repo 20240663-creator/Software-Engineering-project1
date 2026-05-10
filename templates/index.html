@@ -6,13 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Wallet - Home</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        .transactions-section {
+            /* height: 400px; */
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .transactions-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .transaction-list {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 10px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5px;
+            border-bottom: 1px solid #eee;
+            padding-left: 0px;
+            padding-right: 20px;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+    </style>
 </head>
 <body id="user-home-body">
     <header id="user-home-header">
        <nav id="user-home-nav">
             <div class="logo">💰 Smart Wallet</div>
             <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Dashboard</a></li>
                 <li><a href="{% url 'transactions' %}">History</a></li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
                 <li><a href="{% url 'categories' %}">Categories</a></li>
@@ -41,12 +84,12 @@
 
             <div class="card">
                 <div class="card-title">Total income</div>
-                <div class="card-value">{{ user.total_income }}</div>
+                <div class="card-value " style="color: rgb(24, 152, 24);">{{ user.total_income }}</div>
             </div>
 
             <div class="card">
                 <div class="card-title">Total Expenses</div>
-                <div class="card-value">{{ user.total_expense }}</div>
+                <div class="card-value " style="color: red;">{{ user.total_expense }}</div>
             </div>
 
             <div class="card">
@@ -71,7 +114,9 @@
         {% for t in transaction %}
         <li class="transaction-item">
             <div class="transaction-info">
-                <div class="transaction-type">{{ t.type }}</div>
+                <div class="transaction-type" {%if t.type == 'income' %}style="color: #27ae60;"{% else %}style="color: #e74c3c;"{% endif %}>
+                    {{ t.type }}
+                </div>
                 <div class="transaction-date">{{ t.date }}</div>
             </div>
             <div class="transaction-amount {% if t.wallet == user.wallet and t.type != 'income'%}amount-negative{% else %}amount-positive{% endif %}">

@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart Wallet - Transactions</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <style>
+        .badge-success {
+            background-color: #DCFCE7;
+            color: #15803D;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+    </style>
 </head>
 <body id="user-home-body">
     <header id="user-home-header">
@@ -13,7 +23,6 @@
             <div class="logo">💰 Smart Wallet</div>
             <ul class="nav-links">
                 <li><a href="{% url 'home' %}">Dashboard</a></li>
-                <li><a href="{% url 'transactions' %}">History</a></li>
                 <li><a href="{% url 'profile' %}">Profile</a></li>
                 <li><a href="{% url 'categories' %}">Categories</a></li>
                 <li><a href="{% url 'budget' %}">Budgets</a></li>
@@ -47,11 +56,16 @@
                         <tr>
                             <td>{{ tx.date|date:"M d, Y H:i" }}</td>
                             <td><span class="badge badge-success">Completed</span></td>
-                            <td>{{ tx.get_type_display }}</td>
-                            <td class="amount {% if tx.type == 'send' or tx.type == 'expense' %}amount-negative{% else %}amount-positive{% endif %}">
+                            <td class="type" {%if tx.type == 'income' %}style="color: #27ae60; "{% else %}style="color: #e74c3c;"{% endif %}>
+                                {{ tx.get_type_display }}
+                            </td>
+                            <td class="amount {% if tx.type == 'send' or tx.type == 'expense' %}amount-negative{% else %}amount-positive{% endif %}"
+                            {% if tx.type == 'send' or tx.type == 'expense' %}style="color: #e74c3c;"{% else %}style="color: #27ae60;"{% endif %}>
                                 {% if tx.type == 'send' or tx.type == 'expense' %}-{% endif %}{{ tx.amount|floatformat:2 }}
                             </td>
-                            <td>${{ tx.fee|floatformat:2 }}</td>
+                            <td {% if tx.fee %}style="color: red;"{% endif %}>
+                                ${{ tx.fee|floatformat:2 }}
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
